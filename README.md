@@ -159,6 +159,15 @@ Configuration (window position, path history) is stored at `%APPDATA%\DiskLens\c
 
 ---
 
+## Credits
+
+The idea, requirements and direction for this project came from **Jan Erik Mueller**.  
+The entire codebase — every line of PowerShell, the WPF GUI, the scan engine, all dialogs and tools — was written by **[Claude](https://claude.ai)**, an AI assistant made by [Anthropic](https://www.anthropic.com).
+
+This project is an example of human–AI collaboration: a person with a vision, and an AI that implements it.
+
+---
+
 ## License
 
 MIT — see [LICENSE](LICENSE)
