@@ -159,6 +159,15 @@ Die Konfiguration (Fensterposition, Pfad-History) wird unter `%APPDATA%\DiskLens
 
 ---
 
+## Credits
+
+Die Idee, die Anforderungen und die Richtung dieses Projekts stammen von **Jan Erik Mueller**.  
+Der gesamte Quellcode – jede Zeile PowerShell, die WPF-GUI, die Scan-Engine, alle Dialoge und Tools – wurde von **[Claude](https://claude.ai)** geschrieben, einem KI-Assistenten von [Anthropic](https://www.anthropic.com).
+
+Dieses Projekt ist ein Beispiel für Mensch-KI-Kollaboration: ein Mensch mit einer Vision, und eine KI die sie umsetzt.
+
+---
+
 ## Lizenz
 
 MIT – siehe [LICENSE](LICENSE)
