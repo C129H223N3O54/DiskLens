@@ -14,7 +14,7 @@
 
 ## Screenshot
 
-(https://github.com/C129H223N3O54/DiskLens/blob/main/screenshot.png)
+https://github.com/C129H223N3O54/DiskLens/blob/main/screenshot.png
 
 ---
 
