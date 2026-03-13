@@ -1,0 +1,17 @@
+Disk Lens – A PowerShell WPF Disk Analyzer for Windows
+Disk Lens is a free, open-source tool for Windows that helps you visualize and clean up disk space. No installation needed – just a single PowerShell script.
+I came up with the idea and the requirements for this tool, but I want to be transparent: the entire codebase was written by Claude (Anthropic's AI assistant). Every line of PowerShell, the WPF GUI, the parallel scan engine, the duplicate finder, the empty folder finder – all of it was generated through an iterative back-and-forth where I described what I wanted and Claude implemented it.
+I think that kind of transparency matters, especially in open source. The idea was mine. The code was Claude's. The result is something I'm genuinely happy with and wanted to share.
+What it does:
+
+Parallel folder scan with live updates and size class visualization
+Built-in file browser with breadcrumb navigation and async size calculation
+Duplicate file finder (three-stage MD5 algorithm)
+Empty folder finder
+Real-time drive, Recycle Bin and Temp status bar
+Full English / German UI with live language switch
+Dark theme, no installation, single .ps1 file
+
+Requirements: Windows 10/11, PowerShell 5.1+ (pre-installed)
+powershellpowershell -ExecutionPolicy Bypass -File DiskLens.ps1
+MIT License — free to use, modify and share.
