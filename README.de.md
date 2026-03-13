@@ -14,7 +14,7 @@
 
 ## Screenshot
 
-> *(Screenshot hier einfügen – z. B. mit `![Screenshot](docs/screenshot.png)`)*
+![Screenshot](screenshot.png)
 
 ---
 
