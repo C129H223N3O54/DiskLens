@@ -3,7 +3,7 @@
 > **A fast, portable WPF tool for Windows to analyze, visualize, and clean up disk space.**  
 > Written entirely in PowerShell — no installation, no dependencies, single file.
 
-![Version](https://img.shields.io/badge/version-1.2.3-7C3AED?style=flat-square)
+![Version](https://img.shields.io/badge/version-1.2.4-7C3AED?style=flat-square)
 ![Platform](https://img.shields.io/badge/platform-Windows-0078D4?style=flat-square)
 ![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-012456?style=flat-square)
 ![License](https://img.shields.io/badge/license-MIT-22C55E?style=flat-square)
@@ -14,7 +14,7 @@
 
 ## Screenshot
 
-![Screenshot](screenshot.png)
+> *(Add a screenshot here — e.g. `![Screenshot](docs/screenshot.png)`)*
 
 ---
 
@@ -55,12 +55,12 @@
 - **Temp folder size** with details and clean button
 
 ### Convenience
-- **Language switch** — English / German, selectable at startup and switchable at any time via button
+- **Language selection** — English / German, asked at every startup with last choice pre-selected
+- **Dark / Light mode** — asked at every startup with last choice pre-selected, automatic system detection as option
 - **Path history** — last 10 paths, stored persistently
 - **Window position and size** saved and restored
 - **Admin check** at startup with option to restart as Administrator
 - **Drive selection dialog** at startup
-- Dark theme throughout
 
 ---
 
@@ -88,6 +88,18 @@ Or right-click the file → **"Run with PowerShell"**.
 
 ---
 
+## Startup Flow
+
+Each time Disk Lens starts, it asks three quick questions — all with your last choice pre-selected:
+
+1. **Language** — English or German
+2. **Display mode** — Dark, Light, or use system setting
+3. **Admin check** — run as Administrator or continue with standard rights
+
+Then the **drive selection** dialog opens and you're ready to scan.
+
+---
+
 ## Project Structure
 
 ```
@@ -101,7 +113,7 @@ DiskLens/
 
 The entire application — GUI, scan engine, duplicate finder, empty folder finder, all dialogs — lives in a single `.ps1` file. No installation, no registry entries, no setup required.
 
-Configuration (window position, path history) is stored at `%APPDATA%\DiskLens\config.xml`.
+Configuration (window position, path history, language, theme) is stored at `%APPDATA%\DiskLens\config.xml`.
 
 ---
 
@@ -121,20 +133,24 @@ Configuration (window position, path history) is stored at `%APPDATA%\DiskLens\c
 
 ## Changelog
 
+### v1.2.4 — 2026-04-03
+- **Dark / Light mode** with complete color palette
+- Theme dialog at startup: Dark / Light / System setting
+- Selected theme and language saved and pre-selected on next launch
+- High-contrast light mode palette
+- Code cleanup: unnecessary constructs and duplicate imports removed
+
 ### v1.2.3 — 2026-03-13
-- **Language selection at startup** — English or German (Windows Forms dialog)
+- **Language selection** at startup — English or German
 - **In-app language switch** button — switch at any time without restarting
 - Fully bilingual UI: all buttons, labels, dialogs, status messages, context menus
-- Duplicate finder and empty folder finder fully translated via token injection
 - Renamed to **Disk Lens** (`DiskLens.ps1`)
-- Fixed: PowerShell built-in `$Lang` variable conflict → renamed to `$StartLang`
 
 ### v1.2.2 — 2026-03-13
 - Browser: `IO.Directory` methods replace `Get-ChildItem` (faster, no pipeline overhead)
 - Browser runspace: fixed silent `Dispatcher.Invoke` scoping bug
 - Duplicate finder: replaced COM `Shell.Application` with `VisualBasic.FileIO.FileSystem`
-- Empty folder runspace: eliminated mass `DirectoryInfo` allocations
-- Dead code removed: `$maxDepth`, `$dupeGroups`, duplicate formatting logic
+- Dead code removed
 
 ### v1.2.1 — 2026-03-13
 - Browser size cache — no re-scan when navigating back

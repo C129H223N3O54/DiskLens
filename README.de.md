@@ -3,7 +3,7 @@
 > **Ein schnelles, portables WPF-Tool für Windows zum Analysieren, Visualisieren und Aufräumen von Festplattenplatz.**  
 > Vollständig in PowerShell geschrieben – keine Installation, keine Abhängigkeiten, eine einzige Datei.
 
-![Version](https://img.shields.io/badge/version-1.2.3-7C3AED?style=flat-square)
+![Version](https://img.shields.io/badge/version-1.2.4-7C3AED?style=flat-square)
 ![Platform](https://img.shields.io/badge/platform-Windows-0078D4?style=flat-square)
 ![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-012456?style=flat-square)
 ![License](https://img.shields.io/badge/license-MIT-22C55E?style=flat-square)
@@ -14,7 +14,7 @@
 
 ## Screenshot
 
-![Screenshot](screenshot.png)
+> *(Screenshot hier einfügen – z. B. mit `![Screenshot](docs/screenshot.png)`)*
 
 ---
 
@@ -32,7 +32,7 @@
 - Integrierter Seitenbereich-Browser mit Doppelklick-Navigation
 - **Breadcrumb-Navigation** mit klickbaren Pfadsegmenten
 - Asynchrone Größenberechnung (UI bleibt flüssig)
-- **Größen-Cache** – bereits berechnete Ordner werden beim Zurücknavigieren nicht neu gescannt
+- **Größen-Cache** – bereits berechnete Ordner werden nicht neu gescannt
 - Sortierung per Spaltenklick (Name, Typ, Größe, Datum)
 - Zurück- und Hoch-Navigation
 - Kontextmenü: Öffnen, Im Explorer anzeigen, Umbenennen, Kopieren, Ausschneiden, Einfügen, Neuer Ordner, Löschen, Pfad kopieren
@@ -55,12 +55,12 @@
 - **Temp-Ordner-Größe** mit Detailansicht und Leeren-Button
 
 ### Komfort
-- **Sprachwechsel** – Englisch / Deutsch, wählbar beim Start und jederzeit per Button umschaltbar
+- **Sprachauswahl** – Englisch oder Deutsch, bei jedem Start gefragt mit letzter Auswahl vorausgewählt
+- **Dark / Light Mode** – bei jedem Start gefragt mit letzter Auswahl vorausgewählt, automatische Systemerkennung als Option
 - **Pfad-History** – letzten 10 Pfade, persistent gespeichert
 - **Fensterposition und -größe** werden gespeichert und wiederhergestellt
 - **Admin-Check** beim Start mit Option zum Neustart als Administrator
 - **Laufwerks-Auswahldialog** beim Start
-- Durchgängig dunkles Theme
 
 ---
 
@@ -70,7 +70,7 @@
 |---|---|
 | **Betriebssystem** | Windows 10 / 11 |
 | **PowerShell** | 5.1 oder neuer (vorinstalliert auf Windows 10+) |
-| **Rechte** | Normale Benutzerrechte reichen – Administratorrechte empfohlen für vollständigen Zugriff auf Systemordner |
+| **Rechte** | Normale Benutzerrechte reichen – Administratorrechte empfohlen für vollständigen Zugriff |
 | **Framework** | .NET / WPF (in Windows integriert, keine Installation nötig) |
 
 ---
@@ -88,6 +88,18 @@ Oder per Rechtsklick auf die Datei → **„Mit PowerShell ausführen"**.
 
 ---
 
+## Startablauf
+
+Bei jedem Start stellt Disk Lens drei kurze Fragen – immer mit der letzten Auswahl vorausgewählt:
+
+1. **Sprache** – Englisch oder Deutsch
+2. **Darstellungsmodus** – Dunkel, Hell oder Systemeinstellung
+3. **Admin-Check** – als Administrator starten oder mit normalen Rechten weitermachen
+
+Dann öffnet sich der **Laufwerks-Auswahldialog** und die Analyse kann beginnen.
+
+---
+
 ## Projektstruktur
 
 ```
@@ -101,7 +113,7 @@ DiskLens/
 
 Die gesamte Anwendung – GUI, Scan-Engine, Duplikat-Finder, Leere-Ordner-Finder, alle Dialoge – steckt in einer einzigen `.ps1`-Datei. Keine Installation, keine Registry-Einträge, kein Setup.
 
-Die Konfiguration (Fensterposition, Pfad-History) wird unter `%APPDATA%\DiskLens\config.xml` gespeichert.
+Die Konfiguration (Fensterposition, Pfad-History, Sprache, Theme) wird unter `%APPDATA%\DiskLens\config.xml` gespeichert.
 
 ---
 
@@ -121,20 +133,24 @@ Die Konfiguration (Fensterposition, Pfad-History) wird unter `%APPDATA%\DiskLens
 
 ## Changelog
 
+### v1.2.4 — 03.04.2026
+- **Dark / Light Mode** mit vollständiger Farbpalette
+- Theme-Dialog beim Start: Dunkel / Hell / Systemeinstellung
+- Gewähltes Theme und Sprache werden gespeichert und beim nächsten Start vorausgewählt
+- Kontrastreiche Light-Mode-Palette
+- Code-Bereinigung: unnötige Konstrukte und doppelte Imports entfernt
+
 ### v1.2.3 — 13.03.2026
-- **Sprachauswahl beim Start** – Englisch oder Deutsch (Windows Forms Dialog)
+- **Sprachauswahl** beim Start – Englisch oder Deutsch
 - **In-App Sprachwechsel** per Button – jederzeit ohne Neustart umschaltbar
-- Vollständig zweisprachige UI: alle Buttons, Labels, Dialoge, Statusmeldungen, Kontextmenüs
-- Duplikat-Finder und Leere-Ordner-Finder vollständig übersetzt (Token-Injektion)
+- Vollständig zweisprachige UI: alle Buttons, Labels, Dialoge, Statusmeldungen
 - Umbenannt zu **Disk Lens** (`DiskLens.ps1`)
-- Bugfix: Konflikt mit interner PowerShell-Variable `$Lang` behoben
 
 ### v1.2.2 — 13.03.2026
-- Browser: `IO.Directory`-Methoden ersetzen `Get-ChildItem` (schneller, kein Pipeline-Overhead)
+- Browser: `IO.Directory`-Methoden ersetzen `Get-ChildItem` (schneller)
 - Browser-Runspace: Stilles `Dispatcher.Invoke`-Scoping-Bug behoben
 - Duplikat-Finder: COM `Shell.Application` durch `VisualBasic.FileIO.FileSystem` ersetzt
-- Leere-Ordner-Runspace: Massen-`DirectoryInfo`-Allokierungen entfernt
-- Toter Code entfernt: `$maxDepth`, `$dupeGroups`, duplizierte Formatierungslogik
+- Toter Code entfernt
 
 ### v1.2.1 — 13.03.2026
 - Browser-Größen-Cache – kein Re-Scan beim Zurücknavigieren

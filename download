@@ -1,0 +1,17 @@
+# PowerShell
+*.ps1xml
+*.psm1~
+*.psd1~
+
+# Windows
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Config (wird zur Laufzeit angelegt, nicht einchecken)
+config.xml
+
+# Editor
+.vscode/
+*.suo
+*.user
