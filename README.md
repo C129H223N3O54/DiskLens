@@ -14,7 +14,7 @@
 
 ## Screenshot
 
-> *(Add a screenshot here — e.g. `![Screenshot](docs/screenshot.png)`)*
+> *(Add a screenshot here — e.g. `![Screenshot](screenshot.png)`)*
 
 ---
 
