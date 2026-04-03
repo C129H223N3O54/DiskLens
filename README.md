@@ -12,12 +12,6 @@
 
 ---
 
-## Screenshot
-
-> *(Add a screenshot here — e.g. `![Screenshot](screenshot.png)`)*
-
----
-
 ## Features
 
 ### Analysis
