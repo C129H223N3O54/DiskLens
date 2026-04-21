@@ -8,21 +8,35 @@
 .NOTES
     Ausfuehren: powershell -ExecutionPolicy Bypass -File DiskLens.ps1
 #>
-param(
-    [string]$StartLang  = "",
-    [string]$StartTheme = ""
-)
+param()
 
 # ===== Version & Changelog =====
-$script:AppVersion = "1.2.4"
-$script:AppName    = "Disk Lens"
+$script:AppVersion = "1.2.6"
 $script:ChangelogDE = @(
+    [PSCustomObject]@{ Version="1.2.6"; Datum="22.04.2026"; Aenderungen=@(
+        "Einheitliche Button-Farben in allen Fenstern (Hauptfenster, Duplikate, Leere Ordner)"
+        "Duplikat-Finder: durchgaengig gruene Akzentfarbe (Titel, Header, Buttons, Progressbar)"
+        "Leere-Ordner-Finder: durchgaengig orangene Akzentfarbe"
+        "Disabled Buttons: einheitlich grau statt verwaschen"
+        "Browser-Sortierung: Groesse absteigend als Standard (Live-Sorting)"
+        "DataGrid-Spaltenbreiten ausgewogen verteilt"
+        "Groessenklassen-Badges: korrekte Farben im Light Mode (Runspace erhielt $T nicht)"
+        "Code-Bereinigung: Apply-Theme und Build-TreeView (toter Code) entfernt"
+        "Light Mode Kontraste verbessert"
+    )}
+    [PSCustomObject]@{ Version="1.2.5"; Datum="03.04.2026"; Aenderungen=@(
+        "Live Dark/Light-Umschaltung per Button ohne Neustart"
+        "Live Sprachwechsel per Button ohne Neustart"
+        "Keine Startup-Dialoge mehr – Sprache und Theme aus config.xml"
+        "Erster Start: System-Theme wird automatisch erkannt"
+        "Code-Bereinigung: Apply-Theme, Build-TreeView (toter Code) entfernt"
+    )}
     [PSCustomObject]@{ Version="1.2.4"; Datum="03.04.2026"; Aenderungen=@(
         "Light Mode mit vollstaendiger Farbpalette"
         "Theme-Dialog beim Start: Dunkel / Hell / Systemeinstellung"
-        "Gewähltes Theme wird gespeichert und beim naechsten Start vorausgewaehlt"
+        "Gewähltes Theme wird gespeichert"
         "Kontrastreiche Light-Mode-Palette überarbeitet"
-        "Code-Bereinigung: unnötige Konstruktionen und doppelte Imports entfernt"
+        "Code-Bereinigung: unnötige Konstruktionen entfernt"
     )}
     [PSCustomObject]@{ Version="1.2.3"; Datum="13.03.2026"; Aenderungen=@(
         "Sprachauswahl beim Start: Englisch oder Deutsch (Dialogfenster vor Admin-Pruefung)"
@@ -84,12 +98,30 @@ $script:ChangelogDE = @(
     )}
 )
 $script:ChangelogEN = @(
+    [PSCustomObject]@{ Version="1.2.6"; Datum="2026-04-22"; Aenderungen=@(
+        "Unified button colors across all windows (main, duplicates, empty folders)"
+        "Duplicate Finder: consistent green accent (title, headers, buttons, progress bar)"
+        "Empty Folder Finder: consistent amber accent"
+        "Disabled buttons: uniform gray instead of washed-out colors"
+        "Browser sorting: size descending as default (live sorting)"
+        "DataGrid column widths evenly distributed"
+        "Size class badges: correct colors in light mode (runspace was missing $T)"
+        "Code cleanup: removed dead code (Apply-Theme, Build-TreeView)"
+        "Light mode contrast improvements"
+    )}
+    [PSCustomObject]@{ Version="1.2.5"; Datum="2026-04-03"; Aenderungen=@(
+        "Live Dark/Light toggle via button — no restart required"
+        "Live language switch via button — no restart required"
+        "No more startup dialogs — language and theme loaded from config.xml"
+        "First launch: system theme detected automatically"
+        "Code cleanup: removed dead code (Apply-Theme, Build-TreeView)"
+    )}
     [PSCustomObject]@{ Version="1.2.4"; Datum="2026-04-03"; Aenderungen=@(
         "Light mode with complete color palette"
-        "Theme dialog at startup: Dark / Light / System setting"
-        "Selected theme is saved and pre-selected on next launch"
-        "High-contrast light mode palette revised"
-        "Code cleanup: unnecessary constructs and duplicate imports removed"
+        "Theme dialog at startup"
+        "Selected theme saved"
+        "High-contrast light mode palette"
+        "Code cleanup"
     )}
     [PSCustomObject]@{ Version="1.2.3"; Datum="2026-03-13"; Aenderungen=@(
         "Language selection at startup: English or German (dialog before admin check)"
@@ -164,27 +196,21 @@ function Get-SystemTheme {
     } catch { return "Dark" }
 }
 
-$script:ThemeMode = if ($StartTheme -eq "Dark" -or $StartTheme -eq "Light") {
-    $StartTheme    # via Admin-Neustart; sonst setzt Theme-Dialog $script:ThemeMode
-} else {
-    "Dark"         # Fallback bis Theme-Dialog gelaufen ist
-}
-
 $script:Themes = @{
     Dark = @{
         WinBg           = "#1E1E2E"; PanelBg         = "#2D2D3F"; HeaderBg        = "#1A1A2E"
         StatusBg        = "#252535"; BottomBarBg     = "#161622"; InputBg         = "#2D2D3F"
         InputFg         = "#E2E8F0"; InputBorder     = "#374151"; TextPrimary     = "#E2E8F0"
         TextSecondary   = "#9CA3AF"; TextMuted       = "#6B7280"; TextAccent      = "#A78BFA"
-        Accent          = "#7C3AED"; AccentHover     = "#6D28D9"; BtnNeutral      = "#374151"
-        BtnNeutralHover = "#4B5563"; BtnBlue         = "#1D4ED8"; BtnBlueHover    = "#1E40AF"
-        BtnDanger       = "#991B1B"; BtnDangerDark   = "#7F1D1D"; BtnGreen        = "#065F46"
-        BtnAmber        = "#92400E"; BtnAmberScan    = "#D97706"; Border          = "#374151"
+        Accent          = "#7C3AED"; AccentHover     = "#6D28D9"; BtnNeutral      = "#475569"
+        BtnNeutralHover = "#374151"; BtnBlue         = "#2563EB"; BtnBlueHover    = "#1D4ED8"
+        BtnDanger       = "#DC2626"; BtnDangerDark   = "#B91C1C"; BtnGreen        = "#059669"
+        BtnAmber        = "#B45309"; BtnAmberScan    = "#D97706"; Border          = "#374151"
         BorderLight     = "#4B5563"; RowHover        = "#3D3D5C"; RowSelected     = "#4C1D95"
         RowSelectedDupe = "#78350F"; BarBg           = "#374151"; SeparatorFg     = "#6B7280"
         BreadcrumbFg    = "#A78BFA"; BreadcrumbMuted = "#9CA3AF"
         NoAccessFg      = "#F87171"; FolderFg        = "#60A5FA"; FileFg          = "#E2E8F0"
-        WarnFg          = "#FBBF24"; BadgeFg         = "White";   DriveBar        = $T.DriveBar
+        WarnFg          = "#FBBF24"; BadgeFg         = "White";   DriveBar        = "#4C1D95"
         DriveBarWarn    = "#92400E"; DriveBarCrit    = "#7F1D1D"; SizeBadgeVL     = "#7F1D1D"
         SizeBadgeL      = "#92400E"; SizeBadgeM      = "#1E3A5F"; SizeBadgeS      = "#064E3B"
         SizeBadgeVS     = "#1F2937"; ChangelogHdr    = "#252535"; ChangelogEntry  = "#1A1A2E"
@@ -195,18 +221,18 @@ $script:Themes = @{
         StatusBg        = "#DDE3EE"; BottomBarBg     = "#C8D0DF"; InputBg         = "#FFFFFF"
         InputFg         = "#1E293B"; InputBorder     = "#B0BAD0"; TextPrimary     = "#1E293B"
         TextSecondary   = "#3D4F6B"; TextMuted       = "#5A6A85"; TextAccent      = "#5B21B6"
-        Accent          = "#6D28D9"; AccentHover     = "#5B21B6"; BtnNeutral      = "#4B5A72"
-        BtnNeutralHover = "#3D4F6B"; BtnBlue         = "#1D4ED8"; BtnBlueHover    = "#1E40AF"
-        BtnDanger       = "#B91C1C"; BtnDangerDark   = "#991B1B"; BtnGreen        = "#047857"
-        BtnAmber        = "#92400E"; BtnAmberScan    = "#B45309"; Border          = "#B0BAD0"
+        Accent          = "#7C3AED"; AccentHover     = "#6D28D9"; BtnNeutral      = "#64748B"
+        BtnNeutralHover = "#475569"; BtnBlue         = "#2563EB"; BtnBlueHover    = "#1D4ED8"
+        BtnDanger       = "#DC2626"; BtnDangerDark   = "#B91C1C"; BtnGreen        = "#059669"
+        BtnAmber        = "#B45309"; BtnAmberScan    = "#D97706"; Border          = "#B0BAD0"
         BorderLight     = "#C8D0DF"; RowHover        = "#C4B5FD"; RowSelected     = "#A78BFA"
         RowSelectedDupe = "#FDE68A"; BarBg           = "#C8D0DF"; SeparatorFg     = "#B0BAD0"
         BreadcrumbFg    = "#5B21B6"; BreadcrumbMuted = "#4B5A72"; RowHoverFg      = "#1E293B"
         NoAccessFg      = "#B91C1C"; FolderFg        = "#1D4ED8"; FileFg          = "#1E293B"
         WarnFg          = "#92400E"; BadgeFg         = "White";   DriveBar        = "#6D28D9"
-        DriveBarWarn    = "#B45309"; DriveBarCrit    = "#B91C1C"; SizeBadgeVL     = "#7F1D1D"
-        SizeBadgeL      = "#7C2D12"; SizeBadgeM      = "#1E3A8A"; SizeBadgeS      = "#14532D"
-        SizeBadgeVS     = "#334155"; ChangelogHdr    = "#DDE3EE"; ChangelogEntry  = "#FFFFFF"
+        DriveBarWarn    = "#B45309"; DriveBarCrit    = "#B91C1C"; SizeBadgeVL     = "#DC2626"
+        SizeBadgeL      = "#EA580C"; SizeBadgeM      = "#2563EB"; SizeBadgeS      = "#16A34A"
+        SizeBadgeVS     = "#64748B"; ChangelogHdr    = "#DDE3EE"; ChangelogEntry  = "#FFFFFF"
         GroupHeaderBg   = "#DDE3EE"
     }
 }
@@ -227,119 +253,11 @@ try {
     }
 } catch {}
 
-$script:Lang = "DE"
-if ($StartLang -eq "EN" -or $StartLang -eq "DE") {
-    # Via Argument übergeben (nach Admin-Neustart) – kein Dialog
-    $script:Lang = $StartLang
+$script:Lang      = if ($script:Config.Lang -eq "EN") { "EN" } else { "DE" }
+$script:ThemeMode = if ($script:Config.Theme -eq "Light" -or $script:Config.Theme -eq "Dark") {
+    $script:Config.Theme
 } else {
-    $langForm                  = [System.Windows.Forms.Form]::new()
-    $langForm.Text             = "Language / Sprache"
-    $langForm.Size             = [System.Drawing.Size]::new(380, 160)
-    $langForm.StartPosition    = "CenterScreen"
-    $langForm.FormBorderStyle  = "FixedDialog"
-    $langForm.MaximizeBox      = $false
-    $langForm.MinimizeBox      = $false
-    $langForm.BackColor        = [System.Drawing.ColorTranslator]::FromHtml("#1E1E2E")
-
-    $lbl                       = [System.Windows.Forms.Label]::new()
-    $lbl.Text                  = "Please select your language / Bitte Sprache waehlen"
-    $lbl.ForeColor             = [System.Drawing.ColorTranslator]::FromHtml("#9CA3AF")
-    $lbl.Font                  = [System.Drawing.Font]::new("Segoe UI", 10)
-    $lbl.AutoSize              = $false
-    $lbl.Size                  = [System.Drawing.Size]::new(340, 30)
-    $lbl.Location              = [System.Drawing.Point]::new(16, 14)
-    $lbl.TextAlign             = "MiddleCenter"
-
-    $btnEN                     = [System.Windows.Forms.Button]::new()
-    $btnEN.Text                = "EN  English"
-    $btnEN.Size                = [System.Drawing.Size]::new(158, 44)
-    $btnEN.Location            = [System.Drawing.Point]::new(16, 56)
-    $btnEN.BackColor           = [System.Drawing.ColorTranslator]::FromHtml("#1D4ED8")
-    $btnEN.ForeColor           = [System.Drawing.Color]::White
-    $btnEN.FlatStyle           = "Flat"
-    $btnEN.Font                = [System.Drawing.Font]::new("Segoe UI", 12, [System.Drawing.FontStyle]::Bold)
-    $btnEN.Add_Click({ $script:Lang = "EN"; $langForm.Close() })
-
-    $btnDE                     = [System.Windows.Forms.Button]::new()
-    $btnDE.Text                = "DE  Deutsch"
-    $btnDE.Size                = [System.Drawing.Size]::new(158, 44)
-    $btnDE.Location            = [System.Drawing.Point]::new(190, 56)
-    $btnDE.BackColor           = [System.Drawing.ColorTranslator]::FromHtml("#7C3AED")
-    $btnDE.ForeColor           = [System.Drawing.Color]::White
-    $btnDE.FlatStyle           = "Flat"
-    $btnDE.Font                = [System.Drawing.Font]::new("Segoe UI", 12, [System.Drawing.FontStyle]::Bold)
-    $btnDE.Add_Click({ $script:Lang = "DE"; $langForm.Close() })
-
-    # Vorauswahl: gespeicherte Sprache hervorheben
-    $savedLang = $script:Config.Lang
-    if ($savedLang -eq "EN") { $btnEN.BackColor = [System.Drawing.ColorTranslator]::FromHtml("#2563EB") }
-    if ($savedLang -eq "DE") { $btnDE.BackColor = [System.Drawing.ColorTranslator]::FromHtml("#6D28D9") }
-    $langForm.Controls.AddRange(@($lbl, $btnEN, $btnDE))
-    $langForm.ShowDialog() | Out-Null
-    $langForm.Dispose()
-}
-
-# ===== Theme-Dialog =====
-if ($StartTheme -eq "Dark" -or $StartTheme -eq "Light") {
-    $script:ThemeMode = $StartTheme   # via Argument (Admin-Neustart) – kein Dialog
-} else {
-    $systemTheme = Get-SystemTheme
-    $themeForm                  = [System.Windows.Forms.Form]::new()
-    $themeForm.Text             = if ($script:Lang -eq "EN") { "Display mode" } else { "Darstellungsmodus" }
-    $themeForm.Size             = [System.Drawing.Size]::new(380, 200)
-    $themeForm.StartPosition    = "CenterScreen"
-    $themeForm.FormBorderStyle  = "FixedDialog"
-    $themeForm.MaximizeBox      = $false
-    $themeForm.MinimizeBox      = $false
-    $themeForm.BackColor        = [System.Drawing.ColorTranslator]::FromHtml("#1E1E2E")
-
-    $themeLbl                   = [System.Windows.Forms.Label]::new()
-    $themeLbl.Text              = if ($script:Lang -eq "EN") { "Select display mode (system: $systemTheme)" } else { "Darstellungsmodus wählen (System: $systemTheme)" }
-    $themeLbl.ForeColor         = [System.Drawing.ColorTranslator]::FromHtml("#9CA3AF")
-    $themeLbl.Font              = [System.Drawing.Font]::new("Segoe UI", 10)
-    $themeLbl.AutoSize          = $false
-    $themeLbl.Size              = [System.Drawing.Size]::new(340, 30)
-    $themeLbl.Location          = [System.Drawing.Point]::new(16, 14)
-    $themeLbl.TextAlign         = "MiddleCenter"
-
-    $btnDark                    = [System.Windows.Forms.Button]::new()
-    $btnDark.Text               = if ($script:Lang -eq "EN") { "🌙  Dark" } else { "🌙  Dunkel" }
-    $btnDark.Size               = [System.Drawing.Size]::new(158, 44)
-    $btnDark.Location           = [System.Drawing.Point]::new(16, 56)
-    $btnDark.BackColor          = [System.Drawing.ColorTranslator]::FromHtml("#1D4ED8")
-    $btnDark.ForeColor          = [System.Drawing.Color]::White
-    $btnDark.FlatStyle          = "Flat"
-    $btnDark.Font               = [System.Drawing.Font]::new("Segoe UI", 12, [System.Drawing.FontStyle]::Bold)
-    $btnDark.Add_Click({ $script:ThemeMode = "Dark"; $themeForm.Close() })
-
-    $btnLight                   = [System.Windows.Forms.Button]::new()
-    $btnLight.Text              = if ($script:Lang -eq "EN") { "☀  Light" } else { "☀  Hell" }
-    $btnLight.Size              = [System.Drawing.Size]::new(158, 44)
-    $btnLight.Location          = [System.Drawing.Point]::new(190, 56)
-    $btnLight.BackColor         = [System.Drawing.ColorTranslator]::FromHtml("#7C3AED")
-    $btnLight.ForeColor         = [System.Drawing.Color]::White
-    $btnLight.FlatStyle         = "Flat"
-    $btnLight.Font              = [System.Drawing.Font]::new("Segoe UI", 12, [System.Drawing.FontStyle]::Bold)
-    $btnLight.Add_Click({ $script:ThemeMode = "Light"; $themeForm.Close() })
-
-    $btnSystem                  = [System.Windows.Forms.Button]::new()
-    $btnSystem.Text             = if ($script:Lang -eq "EN") { "Use system setting ($systemTheme)" } else { "Systemeinstellung ($systemTheme)" }
-    $btnSystem.Size             = [System.Drawing.Size]::new(332, 34)
-    $btnSystem.Location         = [System.Drawing.Point]::new(16, 112)
-    $btnSystem.BackColor        = [System.Drawing.ColorTranslator]::FromHtml("#374151")
-    $btnSystem.ForeColor        = [System.Drawing.Color]::White
-    $btnSystem.FlatStyle        = "Flat"
-    $btnSystem.Font             = [System.Drawing.Font]::new("Segoe UI", 10)
-    $btnSystem.Add_Click({ $script:ThemeMode = $systemTheme; $themeForm.Close() })
-
-    # Vorauswahl: gespeichertes Theme oder System-Default hervorheben
-    $savedTheme = if ($script:Config.Theme) { $script:Config.Theme } else { $systemTheme }
-    if ($savedTheme -eq "Dark")  { $btnDark.BackColor  = [System.Drawing.ColorTranslator]::FromHtml("#2563EB") }
-    if ($savedTheme -eq "Light") { $btnLight.BackColor = [System.Drawing.ColorTranslator]::FromHtml("#6D28D9") }
-
-    $themeForm.Controls.AddRange(@($themeLbl, $btnDark, $btnLight, $btnSystem))
-    $themeForm.ShowDialog() | Out-Null
-    $themeForm.Dispose()
+    Get-SystemTheme
 }
 
 # ===== Sprachtexte / Language Strings =====
@@ -496,7 +414,7 @@ $script:Strings = @{
         EmptyBtnScan        = "▶  Scan starten"
         EmptyBtnCancel      = "⏹  Abbrechen"
         EmptyBtnBrowse      = "Durchsuchen"
-        EmptyBtnDeleteAll   = "🗑  Alle loeschen"
+        EmptyBtnDeleteAll   = "Alle loeschen"
         EmptyBtnDeleteSel   = "Ausgewaehlte loeschen"
         EmptyColPath        = "Pfad"
         EmptyColDate        = "Geaendert"
@@ -670,7 +588,7 @@ $script:Strings = @{
         EmptyBtnScan        = "▶  Start scan"
         EmptyBtnCancel      = "⏹  Cancel"
         EmptyBtnBrowse      = "Browse"
-        EmptyBtnDeleteAll   = "🗑  Delete all"
+        EmptyBtnDeleteAll   = "Delete all"
         EmptyBtnDeleteSel   = "Delete selected"
         EmptyColPath        = "Path"
         EmptyColDate        = "Modified"
@@ -756,7 +674,10 @@ function Add-PathHistory {
 # Config vollständig laden (PathHistory, Fensterposition etc.)
 Load-Config
 
-# $T setzen (ThemeMode wurde bereits im Dialog oder via Argument bestimmt)
+# $T setzen
+if (-not $script:ThemeMode -or -not $script:Themes.ContainsKey($script:ThemeMode)) {
+    $script:ThemeMode = "Dark"
+}
 $T = $script:Themes[$script:ThemeMode]
 
 # ===== Admin-Pruefung =====
@@ -815,7 +736,7 @@ if (-not $isAdmin) {
     $adminWindow.FindName("btnAdminNo").Add_Click({ $adminWindow.DialogResult = $false })
 
     if ($adminWindow.ShowDialog() -eq $true) {
-        Start-Process powershell.exe -ArgumentList "-ExecutionPolicy Bypass -File `"$PSCommandPath`" -StartLang $script:Lang -StartTheme $script:ThemeMode" -Verb RunAs
+        Start-Process powershell.exe -ArgumentList "-ExecutionPolicy Bypass -File `"$PSCommandPath`" " -Verb RunAs
         exit
     }
 }
@@ -952,7 +873,8 @@ if ($driveResult -eq $true -and $lstDrives.SelectedItem) {
                                 <Setter TargetName="bd" Property="Opacity" Value="0.85"/>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="bd" Property="Background" Value="$($T.BtnNeutralHover)"/>
+                                <Setter TargetName="bd" Property="Background" Value="#6B7280"/>
+                                <Setter Property="Foreground" Value="#D1D5DB"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -1063,6 +985,23 @@ if ($driveResult -eq $true -and $lstDrives.SelectedItem) {
                 <TextBlock x:Name="lblVersion" Grid.Row="0" Text="" Foreground="$($T.TextMuted)" FontSize="11"
                            HorizontalAlignment="Right" Margin="0,0,0,4"/>
                 <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button x:Name="btnSwitchTheme" Content="☀"
+                            Background="$($T.BtnNeutral)" Foreground="White" FontWeight="SemiBold"
+                            Padding="10,4" FontSize="11" BorderThickness="0" Cursor="Hand"
+                            Margin="0,0,6,0">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="bd" Property="Opacity" Value="0.85"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
                     <Button x:Name="btnSwitchLang" Content="$($L.BtnSwitchLang)"
                             Background="$($T.BtnBlue)" Foreground="White" FontWeight="SemiBold"
                             Padding="10,4" FontSize="11" BorderThickness="0" Cursor="Hand"
@@ -1163,7 +1102,7 @@ if ($driveResult -eq $true -and $lstDrives.SelectedItem) {
                               RowBackground="$($T.PanelBg)" AlternatingRowBackground="$($T.StatusBg)"
                               SelectionMode="Single" CanUserAddRows="False" CanUserDeleteRows="False"
                               AutoGenerateColumns="False" IsReadOnly="True" FontSize="13"
-                              CanUserSortColumns="True">
+                              CanUserSortColumns="True" ColumnWidth="*">
                         <DataGrid.ColumnHeaderStyle>
                             <Style TargetType="DataGridColumnHeader">
                                 <Setter Property="Background" Value="$($T.HeaderBg)"/>
@@ -1185,27 +1124,34 @@ if ($driveResult -eq $true -and $lstDrives.SelectedItem) {
                             </Style>
                         </DataGrid.RowStyle>
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="#"       Binding="{Binding Rang}"      Width="45"  SortMemberPath="Rang"/>
-                            <DataGridTextColumn Header="$($L.ColPath)"    Binding="{Binding Pfad}"       Width="*"   SortMemberPath="Pfad"/>
-                            <DataGridTextColumn Header="$($L.ColSize)" Binding="{Binding GraesseFmt}" Width="110" SortMemberPath="Groesse"/>
-                            <DataGridTextColumn Header="$($L.ColFiles)" Binding="{Binding Dateien}"    Width="80"  SortMemberPath="Dateien"/>
-                            <DataGridTemplateColumn Header="$($L.ColShare)" Width="160" SortMemberPath="Anteil">
+                            <DataGridTextColumn Header="#"       Binding="{Binding Rang}"      Width="40"  SortMemberPath="Rang"/>
+                            <DataGridTextColumn Header="$($L.ColPath)"    Binding="{Binding Pfad}"       Width="3*"  SortMemberPath="Pfad"/>
+                            <DataGridTextColumn Header="$($L.ColSize)" Binding="{Binding GraesseFmt}" Width="90"  SortMemberPath="Groesse"/>
+                            <DataGridTextColumn Header="$($L.ColFiles)" Binding="{Binding Dateien}"    Width="70"  SortMemberPath="Dateien"/>
+                            <DataGridTemplateColumn Header="$($L.ColShare)" Width="1.5*" SortMemberPath="Anteil">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <Grid Margin="4,2">
-                                            <ProgressBar Value="{Binding Anteil}" Maximum="100" Height="14"
-                                                         Background="$($T.BtnNeutral)" Foreground="$($T.TextAccent)" BorderThickness="0"/>
-                                            <TextBlock Text="{Binding AnteilFmt}" HorizontalAlignment="Center"
-                                                       VerticalAlignment="Center" FontSize="11" Foreground="White"/>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="50"/>
+                                            </Grid.ColumnDefinitions>
+                                            <ProgressBar Grid.Column="0" Minimum="0" Maximum="100"
+                                                         Value="{Binding Anteil}" Height="14"
+                                                         Background="$($T.BarBg)" Foreground="$($T.Accent)"
+                                                         BorderThickness="0" Margin="0,0,6,0"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding AnteilFmt}"
+                                                       Foreground="$($T.TextSecondary)" FontSize="11"
+                                                       VerticalAlignment="Center"/>
                                         </Grid>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTemplateColumn Header="$($L.ColSizeClass)" Width="100" SortMemberPath="Groesse">
+                            <DataGridTemplateColumn Header="$($L.ColSizeClass)" Width="130" SortMemberPath="Groesse">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Border CornerRadius="4" Margin="4,2" Padding="6,2"
-                                                Background="{Binding FarbHintergrund}">
+                                        <Border CornerRadius="4" Margin="4,2" Padding="8,3"
+                                                Background="{Binding FarbHintergrund}" MinWidth="70">
                                             <TextBlock Text="{Binding FarbLabel}" Foreground="White"
                                                        FontSize="11" FontWeight="SemiBold"
                                                        HorizontalAlignment="Center"/>
@@ -1584,6 +1530,31 @@ function Show-FolderInBrowser {
 
     $lvBrowser.ItemsSource = $items
 
+    # Default-Sortierung: Größe absteigend – mit Live-Sorting
+    $view = [System.Windows.Data.CollectionViewSource]::GetDefaultView($lvBrowser.ItemsSource)
+    if ($view -and $view -is [System.Windows.Data.ListCollectionView]) {
+        $view.IsLiveSorting = $true
+        $view.LiveSortingProperties.Clear()
+        $view.LiveSortingProperties.Add("GroesseBytes")
+        $view.SortDescriptions.Clear()
+        $view.SortDescriptions.Add(
+            [System.ComponentModel.SortDescription]::new("GroesseBytes", [System.ComponentModel.ListSortDirection]::Descending)
+        )
+        $view.Refresh()
+    }
+    # Spaltenheader-Pfeil aktualisieren
+    $gv = $lvBrowser.View
+    if ($gv) {
+        foreach ($col in $gv.Columns) {
+            $h = $col.Header -replace " ▲| ▼", ""
+            if ($h -eq $L.SortSize) {
+                $col.Header = "$h ▼"
+            } else {
+                $col.Header = $h
+            }
+        }
+    }
+
     # Ordnergrößen asynchron per Runspace berechnen
     if ($dirItems.Count -gt 0) {
         $scanPath    = $Path
@@ -1684,7 +1655,17 @@ function Show-FolderInBrowser {
             foreach ($item in $localItems) {
                 if ($item.GroesseBytes -eq -1) { $allDone = $false; break }
             }
-            if ($allDone) { $browserUpdateTimer.Stop() }
+            if ($allDone) {
+                $browserUpdateTimer.Stop()
+                # Nochmal nach Größe absteigend sortieren wenn alle Werte bekannt
+                $v = [System.Windows.Data.CollectionViewSource]::GetDefaultView($lvBrowser.ItemsSource)
+                if ($v) {
+                    $v.SortDescriptions.Clear()
+                    $v.SortDescriptions.Add([System.ComponentModel.SortDescription]::new(
+                        "GroesseBytes", [System.ComponentModel.ListSortDirection]::Descending))
+                    $v.Refresh()
+                }
+            }
         }.GetNewClosure())
         $browserUpdateTimer.Start()
     }
@@ -1895,8 +1876,8 @@ $btnBrowserUp.Add_Click({
 })
 
 # ===== Browser-Sortierung per Spaltenklick =====
-$script:BrowserSortCol = "Name"
-$script:BrowserSortAsc = $true
+$script:BrowserSortCol = "GroesseBytes"
+$script:BrowserSortAsc = $false
 
 $lvBrowser.AddHandler(
     [System.Windows.Controls.GridViewColumnHeader]::ClickEvent,
@@ -2047,76 +2028,6 @@ function Update-BottomBar {
     if ($lblTempSize) { $lblTempSize.Text = "$($L.TempLabel): $(Format-FileSize $tempBytes)" }
 }
 
-# ===== Baumansicht aufbauen =====
-function Build-TreeView {
-    param($RawData, $RootPath)
-    $tvResults.Items.Clear()
-
-    # Hierarchie aufbauen: Pfad -> Kinder
-    $byPath = @{}
-    foreach ($item in $RawData) { $byPath[$item.Pfad] = $item }
-
-    function New-TreeItem {
-        param($Item)
-        $color = Get-SizeColor $Item.Groesse
-        $node = [System.Windows.Controls.TreeViewItem]::new()
-        $node.Tag = $Item.Pfad
-
-        $sp = [System.Windows.Controls.StackPanel]::new()
-        $sp.Orientation = "Horizontal"
-
-        $tb1 = [System.Windows.Controls.TextBlock]::new()
-        $tb1.Text = [System.IO.Path]::GetFileName($Item.Pfad)
-        if (-not $tb1.Text) { $tb1.Text = $Item.Pfad }
-        $tb1.FontWeight = "SemiBold"
-        $tb1.Foreground = $T.TextPrimary
-
-        $tb2 = [System.Windows.Controls.TextBlock]::new()
-        $tb2.Text = "   $(Format-FileSize $Item.Groesse)   $($Item.Dateien)$($L.TreeFiles)"
-        $tb2.Foreground = $T.TextSecondary
-        $tb2.FontSize = 12
-
-        $badge = [System.Windows.Controls.Border]::new()
-        $badge.CornerRadius = [System.Windows.CornerRadius]::new(4)
-        $badge.Margin = [System.Windows.Thickness]::new(8,1,0,0)
-        $badge.Padding = [System.Windows.Thickness]::new(5,1,5,1)
-        $badge.Background = $color.Bg
-        $badgeTxt = [System.Windows.Controls.TextBlock]::new()
-        $badgeTxt.Text = $color.Label
-        $badgeTxt.Foreground = "White"
-        $badgeTxt.FontSize = 11
-        $badge.Child = $badgeTxt
-
-        $sp.Children.Add($tb1) | Out-Null
-        $sp.Children.Add($tb2) | Out-Null
-        $sp.Children.Add($badge) | Out-Null
-        $node.Header = $sp
-        return $node
-    }
-
-    # Top-Level-Eintraege (Tiefe 1) als Wurzel, Unterordner einhaengen
-    $topItems = $RawData | Where-Object { $_.Tiefe -eq 1 } | Sort-Object Groesse -Descending
-    foreach ($top in $topItems) {
-        $topNode = New-TreeItem $top
-        # Direkte Kinder (Tiefe 2, die unter diesem Top-Ordner liegen)
-        $children = $RawData | Where-Object {
-            $_.Tiefe -eq 2 -and $_.Pfad.StartsWith($top.Pfad + "\")
-        } | Sort-Object Groesse -Descending
-        foreach ($child in $children) {
-            $childNode = New-TreeItem $child
-            # Enkinder (Tiefe 3)
-            $grandchildren = $RawData | Where-Object {
-                $_.Tiefe -eq 3 -and $_.Pfad.StartsWith($child.Pfad + "\")
-            } | Sort-Object Groesse -Descending
-            foreach ($gc in $grandchildren) {
-                $childNode.Items.Add((New-TreeItem $gc)) | Out-Null
-            }
-            $topNode.Items.Add($childNode) | Out-Null
-        }
-        $tvResults.Items.Add($topNode) | Out-Null
-    }
-}
-
 # ===== Events =====
 
 # Hilfsfunktion: Control im visuellen Baum suchen
@@ -2131,12 +2042,6 @@ function Find-VisualChild {
     }
     return $null
 }
-
-# Echtzeit-Timer: Laufwerksauslastung alle 30 Sekunden aktualisieren
-$driveTimer = [System.Windows.Threading.DispatcherTimer]::new()
-$driveTimer.Interval = [TimeSpan]::FromSeconds(30)
-$driveTimer.Add_Tick({ Update-BottomBar })
-$driveTimer.Start()
 
 # Nach Loaded: Buttons per VisualTree verdrahten + BottomBar befuellen
 $window.Add_Loaded({
@@ -2190,19 +2095,41 @@ $window.Add_Loaded({
 
     Update-BottomBar
 
-    # Changelog-Button, SwitchLang-Button und Version per VisualTree
+    # Changelog-Button, SwitchLang-Button, SwitchTheme-Button und Version per VisualTree
     $script:btnChangelog   = Find-VisualChild $window "btnChangelog"
     $script:btnSwitchLang  = Find-VisualChild $window "btnSwitchLang"
+    $script:btnSwitchTheme = Find-VisualChild $window "btnSwitchTheme"
     $script:lblVersion     = Find-VisualChild $window "lblVersion"
     if ($script:btnChangelog)  { $script:btnChangelog.Add_Click({ Show-Changelog }) }
     if ($script:lblVersion)    { $script:lblVersion.Text = "v$($script:AppVersion)" }
+    # Theme-Icon beim Start korrekt setzen
+    if ($script:btnSwitchTheme) {
+        $script:btnSwitchTheme.Content = if ($script:ThemeMode -eq "Dark") { "☀" } else { "🌙" }
+        $script:ScriptPath = $PSCommandPath
+        $script:btnSwitchTheme.Add_Click({
+            $newTheme = if ($script:ThemeMode -eq "Dark") { "Light" } else { "Dark" }
+            # Flag setzen damit Closing-Handler Theme nicht überschreibt
+            $script:ThemeSwitching = $true
+            $script:Config.Theme = $newTheme
+            $script:Config.Lang  = $script:Lang
+            $script:Config.WindowLeft   = $window.Left
+            $script:Config.WindowTop    = $window.Top
+            $script:Config.WindowWidth  = $window.Width
+            $script:Config.WindowHeight = $window.Height
+            Save-Config
+            Start-Process powershell.exe -ArgumentList "-ExecutionPolicy Bypass -WindowStyle Hidden -File `"$($script:ScriptPath)`""
+            $window.Close()
+        })
+    }
     if ($script:btnSwitchLang) {
         $script:btnSwitchLang.Add_Click({
             # Sprache umschalten
             $script:Lang = if ($script:Lang -eq "DE") { "EN" } else { "DE" }
             $L = $script:Strings[$script:Lang]
-            # $L auch im Script-Scope aktualisieren damit alle Funktionen die neue Sprache sehen
             Set-Variable -Name L -Value $L -Scope Script
+            # Sofort in Config speichern
+            $script:Config.Lang = $script:Lang
+            Save-Config
 
             # Alle UI-Texte sofort aktualisieren
             $script:btnSwitchLang.Content     = $L.BtnSwitchLang
@@ -2254,9 +2181,40 @@ $window.Add_Loaded({
             Update-BottomBar
         })
     }
+
+# Echtzeit-Timer: Laufwerksauslastung alle 30 Sekunden aktualisieren
+$driveTimer = [System.Windows.Threading.DispatcherTimer]::new()
+$driveTimer.Interval = [TimeSpan]::FromSeconds(30)
+$driveTimer.Add_Tick({
+    if (-not $pnlDriveStatus) { return }
+    $pnlDriveStatus.Children.Clear()
+    $drives = [System.IO.DriveInfo]::GetDrives() | Where-Object { $_.IsReady -and $_.DriveType -in @("Fixed","Removable","Network") }
+    foreach ($drive in $drives) {
+        $totalGB = [math]::Round($drive.TotalSize / 1GB, 1)
+        $freeGB  = [math]::Round($drive.AvailableFreeSpace / 1GB, 1)
+        $usedPct = if ($drive.TotalSize -gt 0) { [math]::Round((($drive.TotalSize - $drive.AvailableFreeSpace) / $drive.TotalSize) * 100) } else { 0 }
+        $barColor = if ($usedPct -ge 90) { $T.DriveBarCrit } elseif ($usedPct -ge 75) { $T.DriveBarWarn } else { $T.DriveBar }
+        $drivePanel = [System.Windows.Controls.StackPanel]::new(); $drivePanel.Margin = [System.Windows.Thickness]::new(0,0,16,0)
+        $topRow = [System.Windows.Controls.StackPanel]::new(); $topRow.Orientation = "Horizontal"
+        $lblDrive = [System.Windows.Controls.TextBlock]::new(); $lblDrive.Text = $drive.Name.TrimEnd("\"); $lblDrive.Foreground = $T.TextPrimary; $lblDrive.FontWeight = "SemiBold"; $lblDrive.FontSize = 11; $lblDrive.Margin = [System.Windows.Thickness]::new(0,0,6,0)
+        $lblSpace = [System.Windows.Controls.TextBlock]::new(); $lblSpace.Text = "$freeGB GB $($L.DriveStatusFree) / $totalGB GB  ($usedPct%)"; $lblSpace.Foreground = $T.TextSecondary; $lblSpace.FontSize = 11
+        $topRow.Children.Add($lblDrive) | Out-Null; $topRow.Children.Add($lblSpace) | Out-Null
+        $barBg = [System.Windows.Controls.Border]::new(); $barBg.Background = $T.BarBg; $barBg.CornerRadius = [System.Windows.CornerRadius]::new(3); $barBg.Height = 5; $barBg.Width = 120; $barBg.Margin = [System.Windows.Thickness]::new(0,3,0,0)
+        $barFill = [System.Windows.Controls.Border]::new(); $barFill.Background = $barColor; $barFill.CornerRadius = [System.Windows.CornerRadius]::new(3); $barFill.Height = 5; $barFill.HorizontalAlignment = "Left"; $barFill.Width = [math]::Round(120 * $usedPct / 100)
+        $barGrid = [System.Windows.Controls.Grid]::new(); $barGrid.Children.Add($barBg) | Out-Null; $barGrid.Children.Add($barFill) | Out-Null
+        $drivePanel.Children.Add($topRow) | Out-Null; $drivePanel.Children.Add($barGrid) | Out-Null; $pnlDriveStatus.Children.Add($drivePanel) | Out-Null
+    }
+    $trashBytes = Get-TrashSize
+    if ($lblTrashSize) { $lblTrashSize.Text = "$($L.TrashLabel): $(if($trashBytes -gt 0){ Format-FileSize $trashBytes }else{ $L.TrashEmpty })" }
+    $tempBytes = Get-TempSize
+    if ($lblTempSize) { $lblTempSize.Text = "$($L.TempLabel): $(Format-FileSize $tempBytes)" }
+})
+
+    $driveTimer.Start()
 })
 
 # Changelog-Fenster anzeigen
+
 function Show-Changelog {
     $L = $script:Strings[$script:Lang]
     [xml]$clXAML = @"
@@ -2387,8 +2345,10 @@ $window.Add_Closing({
     $script:Config.WindowTop    = $window.Top
     $script:Config.WindowWidth  = $window.Width
     $script:Config.WindowHeight = $window.Height
-    $script:Config.Theme        = $script:ThemeMode
-    $script:Config.Lang         = $script:Lang
+    if (-not $script:ThemeSwitching) {
+        $script:Config.Theme = $script:ThemeMode
+        $script:Config.Lang  = $script:Lang
+    }
     Save-Config
 })
 
@@ -2489,6 +2449,7 @@ $btnScan.Add_Click({
     $runspace.SessionStateProxy.SetVariable("CancelRef",     ([ref]$script:CancelRequested))
     $runspace.SessionStateProxy.SetVariable("ScanResultsRef",([ref]$script:ScanResults))
     $runspace.SessionStateProxy.SetVariable("L",             $L)
+    $runspace.SessionStateProxy.SetVariable("T",             $T)
 
     $psCode = {
         function Format-FileSize {
@@ -2766,29 +2727,33 @@ function fmt($b) {
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Disk Lens – ##L.DupeTitle##" Height="700" Width="1000"
-        Background="$($T.WinBg)" Foreground="$($T.TextPrimary)" WindowStartupLocation="CenterScreen">
+        Background="##T.WinBg##" Foreground="##T.TextPrimary##" WindowStartupLocation="CenterScreen">
     <Window.Resources>
         <Style x:Key="Btn" TargetType="Button">
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Padding" Value="12,6"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="bd" Property="Opacity" Value="0.8"/></Trigger>
-                            <Trigger Property="IsEnabled" Value="False"><Setter TargetName="bd" Property="Opacity" Value="0.4"/></Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+      <Setter Property="Foreground" Value="White"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Padding" Value="10,7"/>
+      <Setter Property="Cursor" Value="Hand"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+              <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="bd" Property="Opacity" Value="0.85"/>
+              </Trigger>
+              <Trigger Property="IsEnabled" Value="False">
+                <Setter TargetName="bd" Property="Background" Value="#6B7280"/>
+                <Setter Property="Foreground" Value="#D1D5DB"/>
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
     </Window.Resources>
     <Grid Margin="16">
         <Grid.RowDefinitions>
@@ -2801,9 +2766,9 @@ function fmt($b) {
 
         <!-- Header -->
         <StackPanel Grid.Row="0" Margin="0,0,0,14">
-            <TextBlock Text="##L.DupeHeader##" FontSize="22" FontWeight="Bold" Foreground="$($T.TextAccent)"/>
-            <TextBlock Text="##L.DupeSubtitle1##" FontSize="11" Foreground="$($T.TextSecondary)" Margin="0,3,0,0"/>
-            <TextBlock Text="##L.DupeSubtitle2##" FontSize="12" Foreground="$($T.TextMuted)" Margin="0,3,0,0"/>
+            <TextBlock Text="##L.DupeHeader##" FontSize="22" FontWeight="Bold" Foreground="##T.BtnGreen##"/>
+            <TextBlock Text="##L.DupeSubtitle1##" FontSize="11" Foreground="##T.TextSecondary##" Margin="0,3,0,0"/>
+            <TextBlock Text="##L.DupeSubtitle2##" FontSize="12" Foreground="##T.TextMuted##" Margin="0,3,0,0"/>
         </StackPanel>
 
         <!-- Pfad-Zeile -->
@@ -2814,15 +2779,15 @@ function fmt($b) {
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <TextBox x:Name="txtPath" Grid.Column="0" Background="$($T.PanelBg)" Foreground="$($T.TextPrimary)"
-                     BorderBrush="$($T.Border)" BorderThickness="1" Padding="8,6" FontSize="13"
+            <TextBox x:Name="txtPath" Grid.Column="0" Background="##T.PanelBg##" Foreground="##T.TextPrimary##"
+                     BorderBrush="##T.Border##" BorderThickness="1" Padding="8,6" FontSize="13"
                      Text="STARTPATH_PLACEHOLDER"/>
             <Button x:Name="btnBrowse" Grid.Column="1" Style="{StaticResource Btn}"
-                    Content="##L.BtnBrowse##" Margin="8,0,0,0" Background="$($T.BtnNeutral)"/>
+                    Content="##L.BtnBrowse##" Margin="8,0,0,0" Background="##T.BtnNeutral##"/>
             <Button x:Name="btnScan" Grid.Column="2" Style="{StaticResource Btn}"
-                    Content="##L.BtnScanDupe##" Margin="8,0,0,0" Background="$($T.Accent)"/>
+                    Content="##L.BtnScanDupe##" Margin="8,0,0,0" Background="##T.BtnGreen##"/>
             <Button x:Name="btnCancel" Grid.Column="3" Style="{StaticResource Btn}"
-                    Content="##L.BtnCancel##" Margin="8,0,0,0" Background="$($T.BtnDanger)" IsEnabled="False"/>
+                    Content="##L.BtnCancel##" Margin="8,0,0,0" Background="##T.BtnDanger##" IsEnabled="False"/>
         </Grid>
 
         <!-- Fortschritt -->
@@ -2832,24 +2797,24 @@ function fmt($b) {
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <ProgressBar x:Name="pb" Grid.Column="0" Height="10" Minimum="0" Maximum="100"
-                         Background="$($T.BtnNeutral)" Foreground="$($T.TextAccent)" BorderThickness="0"/>
-            <TextBlock x:Name="lblPct" Grid.Column="1" Foreground="$($T.TextAccent)" FontWeight="SemiBold"
+                         Background="##T.BtnNeutral##" Foreground="##T.BtnGreen##" BorderThickness="0"/>
+            <TextBlock x:Name="lblPct" Grid.Column="1" Foreground="##T.BtnGreen##" FontWeight="SemiBold"
                        FontSize="12" Margin="10,0,0,0" VerticalAlignment="Center" Text=""/>
         </Grid>
 
         <!-- Ergebnisse -->
         <ListView x:Name="lvResults" Grid.Row="3"
-                  Background="$($T.PanelBg)" BorderBrush="$($T.Border)" BorderThickness="1"
-                  Foreground="$($T.TextPrimary)" FontSize="12">
+                  Background="##T.PanelBg##" BorderBrush="##T.Border##" BorderThickness="1"
+                  Foreground="##T.TextPrimary##" FontSize="12">
             <ListView.View>
                 <GridView>
                     <GridView.ColumnHeaderContainerStyle>
                         <Style TargetType="GridViewColumnHeader">
-                            <Setter Property="Background" Value="$($T.HeaderBg)"/>
-                            <Setter Property="Foreground" Value="$($T.TextAccent)"/>
+                            <Setter Property="Background" Value="##T.HeaderBg##"/>
+                            <Setter Property="Foreground" Value="##T.BtnGreen##"/>
                             <Setter Property="FontWeight" Value="SemiBold"/>
                             <Setter Property="Padding" Value="8,6"/>
-                            <Setter Property="BorderBrush" Value="$($T.Border)"/>
+                            <Setter Property="BorderBrush" Value="##T.Border##"/>
                             <Setter Property="BorderThickness" Value="0,0,1,1"/>
                         </Style>
                     </GridView.ColumnHeaderContainerStyle>
@@ -2864,10 +2829,10 @@ function fmt($b) {
                 <GroupStyle>
                     <GroupStyle.HeaderTemplate>
                         <DataTemplate>
-                            <Border Background="$($T.HeaderBg)" Padding="8,4" Margin="0,4,0,0" CornerRadius="4">
+                            <Border Background="##T.HeaderBg##" Padding="8,4" Margin="0,4,0,0" CornerRadius="4">
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="{Binding Name}" Foreground="$($T.TextAccent)" FontWeight="Bold" FontSize="12"/>
-                                    <TextBlock Text="{Binding ItemCount, StringFormat=' — {0} ##L.DupeGroupFiles##'}" Foreground="$($T.TextMuted)" FontSize="12" Margin="4,0,0,0"/>
+                                    <TextBlock Text="{Binding Name}" Foreground="##T.BtnGreen##" FontWeight="Bold" FontSize="12"/>
+                                    <TextBlock Text="{Binding ItemCount, StringFormat=' — {0} ##L.DupeGroupFiles##'}" Foreground="##T.TextMuted##" FontSize="12" Margin="4,0,0,0"/>
                                 </StackPanel>
                             </Border>
                         </DataTemplate>
@@ -2880,12 +2845,12 @@ function fmt($b) {
                     <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
                     <Style.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Background" Value="$($T.RowHover)"/>
-                            <Setter Property="Foreground" Value="$($T.RowHoverFg)"/>
+                            <Setter Property="Background" Value="##T.RowHover##"/>
+                            <Setter Property="Foreground" Value="##T.RowHoverFg##"/>
                         </Trigger>
                         <Trigger Property="IsSelected" Value="True">
-                            <Setter Property="Background" Value="$($T.RowSelected)"/>
-                            <Setter Property="Foreground" Value="$($T.RowHoverFg)"/>
+                            <Setter Property="Background" Value="##T.RowSelected##"/>
+                            <Setter Property="Foreground" Value="##T.RowHoverFg##"/>
                         </Trigger>
                     </Style.Triggers>
                 </Style>
@@ -2899,12 +2864,12 @@ function fmt($b) {
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <TextBlock x:Name="lblStatus" Grid.Column="0" Foreground="$($T.TextMuted)" FontSize="12"
+            <TextBlock x:Name="lblStatus" Grid.Column="0" Foreground="##T.TextMuted##" FontSize="12"
                        VerticalAlignment="Center" Text="##L.DupeStatusReady##"/>
-            <TextBlock x:Name="lblWaste"  Grid.Column="1" Foreground="$($T.NoAccessFg)" FontWeight="Bold"
+            <TextBlock x:Name="lblWaste"  Grid.Column="1" Foreground="##T.BtnGreen##" FontWeight="Bold"
                        FontSize="12" VerticalAlignment="Center" Margin="0,0,16,0" Text=""/>
             <Button x:Name="btnDelete" Grid.Column="2" Style="{StaticResource Btn}"
-                    Content="##L.DupeDeleteSelected##" Background="$($T.BtnDanger)" IsEnabled="False"/>
+                    Content="##L.DupeDeleteSelected##" Background="##T.BtnDanger##" IsEnabled="False"/>
         </Grid>
     </Grid>
 </Window>
@@ -3229,6 +3194,10 @@ $script:w.ShowDialog() | Out-Null
     foreach ($key in $L.Keys) {
         $dupeScript = $dupeScript.Replace("##L.$key##", $L[$key])
     }
+    # Theme-Farben einsetzen: ##T.Key## → aufgelöster Wert
+    foreach ($key in $T.Keys) {
+        $dupeScript = $dupeScript.Replace("##T.$key##", $T[$key])
+    }
 
     # Temp-Datei schreiben und als eigenen Prozess starten
     $tmp = [System.IO.Path]::GetTempFileName() -replace "\.tmp$", ".ps1"
@@ -3263,27 +3232,28 @@ $xaml = [xml]@"
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Disk Lens – ##L.EmptyTitle##" Height="640" Width="860"
-        Background="$($T.WinBg)" Foreground="$($T.TextPrimary)" FontFamily="Segoe UI" FontSize="13"
+        Background="##T.WinBg##" Foreground="##T.TextPrimary##" FontFamily="Segoe UI" FontSize="13"
         WindowStartupLocation="CenterScreen">
   <Window.Resources>
     <Style x:Key="Btn" TargetType="Button">
-      <Setter Property="Foreground" Value="$($T.FileFg)"/>
-      <Setter Property="FontSize" Value="13"/>
-      <Setter Property="Padding" Value="12,6"/>
+      <Setter Property="Foreground" Value="White"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
       <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Padding" Value="10,7"/>
       <Setter Property="Cursor" Value="Hand"/>
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate TargetType="Button">
-            <Border Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+            <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
               <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
             </Border>
             <ControlTemplate.Triggers>
               <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Opacity" Value="0.85"/>
+                <Setter TargetName="bd" Property="Opacity" Value="0.85"/>
               </Trigger>
               <Trigger Property="IsEnabled" Value="False">
-                <Setter Property="Opacity" Value="0.4"/>
+                <Setter TargetName="bd" Property="Background" Value="#6B7280"/>
+                <Setter Property="Foreground" Value="#D1D5DB"/>
               </Trigger>
             </ControlTemplate.Triggers>
           </ControlTemplate>
@@ -3304,7 +3274,7 @@ $xaml = [xml]@"
     <!-- Header -->
     <StackPanel Grid.Row="0" Margin="0,0,0,16">
       <TextBlock Text="##L.EmptyHeader##" FontSize="22" FontWeight="Bold" Foreground="##T.BtnAmberScan##"/>
-      <TextBlock Text="##L.EmptySubtitle##" FontSize="11" Foreground="$($T.TextSecondary)" Margin="0,3,0,0"/>
+      <TextBlock Text="##L.EmptySubtitle##" FontSize="11" Foreground="##T.TextSecondary##" Margin="0,3,0,0"/>
     </StackPanel>
 
     <!-- Pfad-Zeile -->
@@ -3316,14 +3286,14 @@ $xaml = [xml]@"
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
       <TextBox x:Name="txtPath" Grid.Column="0" Text="STARTPATH_PLACEHOLDER"
-               Background="$($T.PanelBg)" Foreground="$($T.TextPrimary)" BorderBrush="$($T.BorderLight)"
+               Background="##T.PanelBg##" Foreground="##T.TextPrimary##" BorderBrush="##T.BorderLight##"
                BorderThickness="1" Padding="8,6" FontSize="13"/>
       <Button x:Name="btnBrowse" Grid.Column="1" Content="##L.EmptyBtnBrowse##" Style="{StaticResource Btn}"
-              Background="$($T.BtnNeutral)" Margin="8,0,0,0"/>
+              Background="##T.BtnNeutral##" Margin="8,0,0,0"/>
       <Button x:Name="btnScan" Grid.Column="2" Content="##L.EmptyBtnScan##" Style="{StaticResource Btn}"
-              Background="$($T.BtnAmberScan)" Margin="8,0,0,0"/>
+              Background="##T.BtnAmberScan##" Margin="8,0,0,0"/>
       <Button x:Name="btnCancel" Grid.Column="3" Content="##L.EmptyBtnCancel##" Style="{StaticResource Btn}"
-              Background="$($T.BtnNeutral)" IsEnabled="False" Margin="8,0,0,0"/>
+              Background="##T.BtnNeutral##" IsEnabled="False" Margin="8,0,0,0"/>
     </Grid>
 
     <!-- Fortschritt -->
@@ -3334,24 +3304,24 @@ $xaml = [xml]@"
       </Grid.ColumnDefinitions>
       <ProgressBar x:Name="pb" Grid.Column="0" Height="6" Minimum="0" Maximum="100" Value="0"
                    Background="##T.BtnNeutral##" Foreground="##T.BtnAmberScan##"/>
-      <TextBlock x:Name="lblPct" Grid.Column="1" Text="" Foreground="$($T.TextSecondary)"
+      <TextBlock x:Name="lblPct" Grid.Column="1" Text="" Foreground="##T.TextSecondary##"
                  FontSize="11" Margin="8,0,0,0" VerticalAlignment="Center" Width="36"/>
     </Grid>
 
     <!-- Ergebnisliste -->
     <ListView x:Name="lvResults" Grid.Row="3"
-              Background="$($T.PanelBg)" BorderThickness="0"
-              Foreground="$($T.TextPrimary)" FontSize="13"
+              Background="##T.PanelBg##" BorderThickness="0"
+              Foreground="##T.TextPrimary##" FontSize="13"
               SelectionMode="Extended">
       <ListView.View>
         <GridView>
           <GridView.ColumnHeaderContainerStyle>
             <Style TargetType="GridViewColumnHeader">
-              <Setter Property="Background" Value="$($T.HeaderBg)"/>
+              <Setter Property="Background" Value="##T.HeaderBg##"/>
               <Setter Property="Foreground" Value="#F59E0B"/>
               <Setter Property="FontWeight" Value="SemiBold"/>
               <Setter Property="Padding" Value="8,6"/>
-              <Setter Property="BorderBrush" Value="$($T.Border)"/>
+              <Setter Property="BorderBrush" Value="##T.Border##"/>
               <Setter Property="BorderThickness" Value="0,0,1,1"/>
             </Style>
           </GridView.ColumnHeaderContainerStyle>
@@ -3364,20 +3334,20 @@ $xaml = [xml]@"
           <Setter Property="Padding" Value="4,3"/>
           <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
-              <Setter Property="Background" Value="$($T.RowHover)"/>
+              <Setter Property="Background" Value="##T.RowHover##"/>
             </Trigger>
             <Trigger Property="IsSelected" Value="True">
-              <Setter Property="Background" Value="$($T.RowSelectedDupe)"/>
+              <Setter Property="Background" Value="##T.RowSelectedDupe##"/>
             </Trigger>
           </Style.Triggers>
         </Style>
       </ListView.ItemContainerStyle>
       <ListView.ContextMenu>
-        <ContextMenu Background="$($T.PanelBg)" BorderBrush="$($T.BorderLight)" Foreground="$($T.TextPrimary)">
-          <MenuItem x:Name="ctxExplorer"  Header="##L.EmptyCtxExplorer##" Background="$($T.PanelBg)" Foreground="$($T.TextPrimary)"/>
-          <MenuItem x:Name="ctxCopyPath"  Header="##L.EmptyCtxCopyPath##" Background="$($T.PanelBg)" Foreground="$($T.TextPrimary)"/>
-          <Separator Background="$($T.BtnNeutral)"/>
-          <MenuItem x:Name="ctxDelete"    Header="##L.EmptyCtxDelete##" Background="$($T.PanelBg)" Foreground="$($T.NoAccessFg)"/>
+        <ContextMenu Background="##T.PanelBg##" BorderBrush="##T.BorderLight##" Foreground="##T.TextPrimary##">
+          <MenuItem x:Name="ctxExplorer"  Header="##L.EmptyCtxExplorer##" Background="##T.PanelBg##" Foreground="##T.TextPrimary##"/>
+          <MenuItem x:Name="ctxCopyPath"  Header="##L.EmptyCtxCopyPath##" Background="##T.PanelBg##" Foreground="##T.TextPrimary##"/>
+          <Separator Background="##T.BtnNeutral##"/>
+          <MenuItem x:Name="ctxDelete"    Header="##L.EmptyCtxDelete##" Background="##T.PanelBg##" Foreground="##T.NoAccessFg##"/>
         </ContextMenu>
       </ListView.ContextMenu>
     </ListView>
@@ -3391,16 +3361,16 @@ $xaml = [xml]@"
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
       <Button x:Name="btnDeleteAll" Grid.Column="0" Content="##L.EmptyBtnDeleteAll##" Style="{StaticResource Btn}"
-              Background="$($T.BtnDangerDark)" IsEnabled="False"/>
+              Background="##T.BtnDangerDark##" IsEnabled="False"/>
       <Button x:Name="btnDeleteSel" Grid.Column="1" Content="##L.EmptyBtnDeleteSel##" Style="{StaticResource Btn}"
-              Background="$($T.BtnDanger)" IsEnabled="False" Margin="8,0,0,0"/>
-      <TextBlock x:Name="lblCount" Grid.Column="2" Text="" Foreground="$($T.TextSecondary)"
+              Background="##T.BtnDanger##" IsEnabled="False" Margin="8,0,0,0"/>
+      <TextBlock x:Name="lblCount" Grid.Column="2" Text="" Foreground="##T.TextSecondary##"
                  FontSize="12" VerticalAlignment="Center" Margin="12,0,0,0"/>
     </Grid>
 
     <!-- Statusleiste -->
     <Border Grid.Row="5" Background="##T.HeaderBg##" Padding="8,6" Margin="0,10,0,0" CornerRadius="6">
-      <TextBlock x:Name="lblStatus" Text="##L.EmptyStatusReady##" Foreground="$($T.TextSecondary)" FontSize="11"/>
+      <TextBlock x:Name="lblStatus" Text="##L.EmptyStatusReady##" Foreground="##T.TextSecondary##" FontSize="11"/>
     </Border>
   </Grid>
 </Window>
@@ -3580,9 +3550,9 @@ $script:btnScan.Add_Click({
 
     $script:dupeHandle = $script:dupePS.BeginInvoke()
 
-    $script:dupeTimer = [System.Windows.Threading.DispatcherTimer]::new()
-    $script:dupeTimer.Interval = [TimeSpan]::FromMilliseconds(150)
-    $script:dupeTimer.Add_Tick({
+    $script:emptyTimer = [System.Windows.Threading.DispatcherTimer]::new()
+    $script:emptyTimer.Interval = [TimeSpan]::FromMilliseconds(150)
+    $script:emptyTimer.Add_Tick({
         if ($script:cancelScan -and $script:cancelRef) {
             $script:cancelRef["cancel"] = $true
         }
@@ -3592,7 +3562,7 @@ $script:btnScan.Add_Click({
         if ($null -ne $status) { $script:lblStatus.Text = [string]$status }
 
         if ($script:uiState["done"]) {
-            $script:dupeTimer.Stop()
+            $script:emptyTimer.Stop()
             try { $script:dupePS.EndInvoke($script:dupeHandle) } catch {}
             $script:dupePS.Dispose(); $script:dupeRS.Dispose()
             $script:btnScan.IsEnabled   = $true
@@ -3611,7 +3581,7 @@ $script:btnScan.Add_Click({
             }
         }
     })
-    $script:dupeTimer.Start()
+    $script:emptyTimer.Start()
 })
 
 $script:w.ShowDialog() | Out-Null

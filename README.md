@@ -3,12 +3,18 @@
 > **A fast, portable WPF tool for Windows to analyze, visualize, and clean up disk space.**  
 > Written entirely in PowerShell — no installation, no dependencies, single file.
 
-![Version](https://img.shields.io/badge/version-1.2.4-7C3AED?style=flat-square)
+![Version](https://img.shields.io/badge/version-1.2.6-7C3AED?style=flat-square)
 ![Platform](https://img.shields.io/badge/platform-Windows-0078D4?style=flat-square)
 ![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-012456?style=flat-square)
 ![License](https://img.shields.io/badge/license-MIT-22C55E?style=flat-square)
 
 🇩🇪 [Deutsche Version](README.de.md)
+
+---
+
+## Screenshot
+
+> *(Add a screenshot here — e.g. `![Screenshot](docs/screenshot.png)`)*
 
 ---
 
@@ -49,8 +55,8 @@
 - **Temp folder size** with details and clean button
 
 ### Convenience
-- **Language selection** — English / German, asked at every startup with last choice pre-selected
-- **Dark / Light mode** — asked at every startup with last choice pre-selected, automatic system detection as option
+- **Language switch** — English / German, toggle live via button in the header
+- **Dark / Light mode** — toggle live via button in the header, system theme detected automatically on first launch
 - **Path history** — last 10 paths, stored persistently
 - **Window position and size** saved and restored
 - **Admin check** at startup with option to restart as Administrator
@@ -84,13 +90,10 @@ Or right-click the file → **"Run with PowerShell"**.
 
 ## Startup Flow
 
-Each time Disk Lens starts, it asks three quick questions — all with your last choice pre-selected:
+1. **Admin check** — run as Administrator or continue with standard rights
+2. **Drive selection** — choose which drive to analyze
 
-1. **Language** — English or German
-2. **Display mode** — Dark, Light, or use system setting
-3. **Admin check** — run as Administrator or continue with standard rights
-
-Then the **drive selection** dialog opens and you're ready to scan.
+Language and theme are switched live via buttons in the top-right corner — no restart needed. Your preferences are saved automatically.
 
 ---
 
@@ -127,12 +130,26 @@ Configuration (window position, path history, language, theme) is stored at `%AP
 
 ## Changelog
 
+### v1.2.6 — 2026-04-22
+- Unified button colors across all windows
+- Duplicate Finder: consistent green accent throughout
+- Empty Folder Finder: consistent amber accent throughout
+- Disabled buttons: uniform gray — no more washed-out colors
+- Browser: size-descending sort as default (live sorting)
+- DataGrid column widths evenly distributed
+- Size class badges: correct colors in light mode (bug fix)
+- Code cleanup: removed dead code
+
+### v1.2.5 — 2026-04-03
+- **Live Dark / Light toggle** via button in header — no restart needed
+- **Live language switch** via button in header — no restart needed
+- No startup dialogs for language / theme — loaded from config.xml automatically
+- First launch: system theme detected automatically
+
 ### v1.2.4 — 2026-04-03
-- **Dark / Light mode** with complete color palette
-- Theme dialog at startup: Dark / Light / System setting
-- Selected theme and language saved and pre-selected on next launch
+- Dark / Light mode with complete color palette
 - High-contrast light mode palette
-- Code cleanup: unnecessary constructs and duplicate imports removed
+- Code cleanup
 
 ### v1.2.3 — 2026-03-13
 - **Language selection** at startup — English or German

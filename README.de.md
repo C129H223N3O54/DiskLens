@@ -3,12 +3,18 @@
 > **Ein schnelles, portables WPF-Tool für Windows zum Analysieren, Visualisieren und Aufräumen von Festplattenplatz.**  
 > Vollständig in PowerShell geschrieben – keine Installation, keine Abhängigkeiten, eine einzige Datei.
 
-![Version](https://img.shields.io/badge/version-1.2.4-7C3AED?style=flat-square)
+![Version](https://img.shields.io/badge/version-1.2.6-7C3AED?style=flat-square)
 ![Platform](https://img.shields.io/badge/platform-Windows-0078D4?style=flat-square)
 ![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-012456?style=flat-square)
 ![License](https://img.shields.io/badge/license-MIT-22C55E?style=flat-square)
 
 🇬🇧 [English version](README.md)
+
+---
+
+## Screenshot
+
+> *(Screenshot hier einfügen – z. B. mit `![Screenshot](docs/screenshot.png)`)*
 
 ---
 
@@ -49,8 +55,8 @@
 - **Temp-Ordner-Größe** mit Detailansicht und Leeren-Button
 
 ### Komfort
-- **Sprachauswahl** – Englisch oder Deutsch, bei jedem Start gefragt mit letzter Auswahl vorausgewählt
-- **Dark / Light Mode** – bei jedem Start gefragt mit letzter Auswahl vorausgewählt, automatische Systemerkennung als Option
+- **Sprachwechsel** – Englisch / Deutsch, live per Button im Header umschaltbar
+- **Dark / Light Mode** – live per Button im Header umschaltbar, System-Theme wird beim ersten Start automatisch erkannt
 - **Pfad-History** – letzten 10 Pfade, persistent gespeichert
 - **Fensterposition und -größe** werden gespeichert und wiederhergestellt
 - **Admin-Check** beim Start mit Option zum Neustart als Administrator
@@ -84,13 +90,10 @@ Oder per Rechtsklick auf die Datei → **„Mit PowerShell ausführen"**.
 
 ## Startablauf
 
-Bei jedem Start stellt Disk Lens drei kurze Fragen – immer mit der letzten Auswahl vorausgewählt:
+1. **Admin-Check** – als Administrator starten oder mit normalen Rechten weitermachen
+2. **Laufwerksauswahl** – zu analysierendes Laufwerk wählen
 
-1. **Sprache** – Englisch oder Deutsch
-2. **Darstellungsmodus** – Dunkel, Hell oder Systemeinstellung
-3. **Admin-Check** – als Administrator starten oder mit normalen Rechten weitermachen
-
-Dann öffnet sich der **Laufwerks-Auswahldialog** und die Analyse kann beginnen.
+Sprache und Theme werden live per Button oben rechts umgeschaltet – kein Neustart nötig. Einstellungen werden automatisch gespeichert.
 
 ---
 
@@ -127,12 +130,26 @@ Die Konfiguration (Fensterposition, Pfad-History, Sprache, Theme) wird unter `%A
 
 ## Changelog
 
+### v1.2.6 — 22.04.2026
+- Einheitliche Button-Farben in allen Fenstern
+- Duplikat-Finder: durchgängig grüne Akzentfarbe
+- Leere-Ordner-Finder: durchgängig orangene Akzentfarbe
+- Disabled-Buttons: einheitlich grau – kein verwaschenesAussehen mehr
+- Browser: Größe absteigend als Standard-Sortierung (Live-Sorting)
+- DataGrid-Spaltenbreiten ausgewogen verteilt
+- Größenklassen-Badges: korrekte Farben im Light Mode (Bugfix)
+- Code-Bereinigung: toter Code entfernt
+
+### v1.2.5 — 03.04.2026
+- **Live Dark/Light-Umschaltung** per Button im Header – kein Neustart nötig
+- **Live Sprachwechsel** per Button im Header – kein Neustart nötig
+- Keine Startup-Dialoge mehr für Sprache/Theme – werden aus config.xml geladen
+- Erster Start: System-Theme wird automatisch erkannt
+
 ### v1.2.4 — 03.04.2026
-- **Dark / Light Mode** mit vollständiger Farbpalette
-- Theme-Dialog beim Start: Dunkel / Hell / Systemeinstellung
-- Gewähltes Theme und Sprache werden gespeichert und beim nächsten Start vorausgewählt
+- Dark / Light Mode mit vollständiger Farbpalette
 - Kontrastreiche Light-Mode-Palette
-- Code-Bereinigung: unnötige Konstrukte und doppelte Imports entfernt
+- Code-Bereinigung
 
 ### v1.2.3 — 13.03.2026
 - **Sprachauswahl** beim Start – Englisch oder Deutsch
