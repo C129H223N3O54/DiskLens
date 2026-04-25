@@ -1,18 +1,30 @@
 ﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
-    Disk Lens - WPF GUI Tool
+    Sideforge - DiskLens - WPF GUI Tool
 .DESCRIPTION
     Analysiert Ordnergroessen auf Windows-Systemen mit grafischer Oberflaeche.
     Paralleler Scan, Live-Updates, Pfad-History, integrierter Datei-Browser.
+    Teil der Sideforge Tool-Suite.
 .NOTES
     Ausfuehren: powershell -ExecutionPolicy Bypass -File DiskLens.ps1
 #>
 param()
 
 # ===== Version & Changelog =====
-$script:AppVersion = "1.2.6"
+$script:AppVersion = "1.3.0"
 $script:ChangelogDE = @(
+    [PSCustomObject]@{ Version="1.3.0"; Datum="24.04.2026"; Aenderungen=@(
+        "Sideforge Design-System eingefuehrt (Ember/Moss/Anvil Palette)"
+        "Akzentfarbe von Lila auf Sideforge-Orange umgestellt"
+        "Header mit Sideforge-Branding und SF-Logo-Kachel"
+        "Startup-Dialoge (Admin-Pruefung, Laufwerksauswahl) mit Sideforge-Branding"
+        "Duplikat-Finder und Leere-Ordner-Finder mit Sideforge-Branding"
+        "Duplikat-Finder: Akzentfarbe von Gruen auf Orange umgestellt (BtnDupe)"
+        "Fenstertitel: Sideforge - DiskLens"
+        "Light Mode: warmes Anvil-Grau statt kuehlem Blaugrau"
+        "Dark Mode: warmes Anthrazit, dezenter Orange-Akzent"
+    )}
     [PSCustomObject]@{ Version="1.2.6"; Datum="22.04.2026"; Aenderungen=@(
         "Einheitliche Button-Farben in allen Fenstern (Hauptfenster, Duplikate, Leere Ordner)"
         "Duplikat-Finder: durchgaengig gruene Akzentfarbe (Titel, Header, Buttons, Progressbar)"
@@ -98,6 +110,17 @@ $script:ChangelogDE = @(
     )}
 )
 $script:ChangelogEN = @(
+    [PSCustomObject]@{ Version="1.3.0"; Datum="2026-04-24"; Aenderungen=@(
+        "Introduced Sideforge design system (Ember/Moss/Anvil palette)"
+        "Accent color changed from purple to Sideforge orange"
+        "Header with Sideforge branding and SF logo tile"
+        "Startup dialogs (admin check, drive selection) rebranded"
+        "Duplicate Finder and Empty Folder Finder rebranded"
+        "Duplicate Finder: accent color changed from green to orange (BtnDupe)"
+        "Window title: Sideforge - DiskLens"
+        "Light mode: warm anvil gray instead of cool blue-gray"
+        "Dark mode: warm anthracite with subtle orange accent"
+    )}
     [PSCustomObject]@{ Version="1.2.6"; Datum="2026-04-22"; Aenderungen=@(
         "Unified button colors across all windows (main, duplicates, empty folders)"
         "Duplicate Finder: consistent green accent (title, headers, buttons, progress bar)"
@@ -198,42 +221,51 @@ function Get-SystemTheme {
 
 $script:Themes = @{
     Dark = @{
-        WinBg           = "#1E1E2E"; PanelBg         = "#2D2D3F"; HeaderBg        = "#1A1A2E"
-        StatusBg        = "#252535"; BottomBarBg     = "#161622"; InputBg         = "#2D2D3F"
-        InputFg         = "#E2E8F0"; InputBorder     = "#374151"; TextPrimary     = "#E2E8F0"
-        TextSecondary   = "#9CA3AF"; TextMuted       = "#6B7280"; TextAccent      = "#A78BFA"
-        Accent          = "#7C3AED"; AccentHover     = "#6D28D9"; BtnNeutral      = "#475569"
-        BtnNeutralHover = "#374151"; BtnBlue         = "#2563EB"; BtnBlueHover    = "#1D4ED8"
-        BtnDanger       = "#DC2626"; BtnDangerDark   = "#B91C1C"; BtnGreen        = "#059669"
-        BtnAmber        = "#B45309"; BtnAmberScan    = "#D97706"; Border          = "#374151"
-        BorderLight     = "#4B5563"; RowHover        = "#3D3D5C"; RowSelected     = "#4C1D95"
-        RowSelectedDupe = "#78350F"; BarBg           = "#374151"; SeparatorFg     = "#6B7280"
-        BreadcrumbFg    = "#A78BFA"; BreadcrumbMuted = "#9CA3AF"
-        NoAccessFg      = "#F87171"; FolderFg        = "#60A5FA"; FileFg          = "#E2E8F0"
-        WarnFg          = "#FBBF24"; BadgeFg         = "White";   DriveBar        = "#4C1D95"
-        DriveBarWarn    = "#92400E"; DriveBarCrit    = "#7F1D1D"; SizeBadgeVL     = "#7F1D1D"
-        SizeBadgeL      = "#92400E"; SizeBadgeM      = "#1E3A5F"; SizeBadgeS      = "#064E3B"
-        SizeBadgeVS     = "#1F2937"; ChangelogHdr    = "#252535"; ChangelogEntry  = "#1A1A2E"
-        GroupHeaderBg   = "#1A1A2E"; RowHoverFg      = "#FFFFFF"
+        # --- Sideforge Dark Mode ------------------------------------------
+        # Anvil-Neutrals fuer Hintergruende (warmes Anthrazit statt Blauton)
+        WinBg           = "#0F0F0F"; PanelBg         = "#1A1A1A"; HeaderBg        = "#141414"
+        StatusBg        = "#1A1A1A"; BottomBarBg     = "#0A0A0A"; InputBg         = "#1F1F1F"
+        # Text
+        InputFg         = "#F5F5F5"; InputBorder     = "#2C2C2A"; TextPrimary     = "#F5F5F5"
+        TextSecondary   = "#B4B2A9"; TextMuted       = "#888780"; TextAccent      = "#F5A05A"
+        # Ember-Akzent (Orange, heller im Dark Mode fuer bessere Lesbarkeit)
+        Accent          = "#F07E2D"; AccentHover     = "#E8600A"; BtnNeutral      = "#444441"
+        BtnNeutralHover = "#2C2C2A"; BtnBlue         = "#F07E2D"; BtnBlueHover    = "#E8600A"
+        BtnDanger       = "#DC2626"; BtnDangerDark   = "#991B1B"; BtnGreen        = "#74A732"
+        BtnDupe         = "#F07E2D"; BtnDupeHover    = "#E8600A"
+        BtnAmber        = "#BA7517"; BtnAmberScan    = "#F07E2D"; Border          = "#2C2C2A"
+        BorderLight     = "#444441"; RowHover        = "#2A1906"; RowSelected     = "#8C3800"
+        RowSelectedDupe = "#27500A"; BarBg           = "#2C2C2A"; SeparatorFg     = "#888780"
+        BreadcrumbFg    = "#F5A05A"; BreadcrumbMuted = "#B4B2A9"
+        NoAccessFg      = "#F09595"; FolderFg        = "#F5A05A"; FileFg          = "#F5F5F5"
+        WarnFg          = "#FAC775"; BadgeFg         = "White";   DriveBar        = "#E8600A"
+        DriveBarWarn    = "#BA7517"; DriveBarCrit    = "#991B1B"; SizeBadgeVL     = "#991B1B"
+        SizeBadgeL      = "#B84905"; SizeBadgeM      = "#1E3A5F"; SizeBadgeS      = "#27500A"
+        SizeBadgeVS     = "#2C2C2A"; ChangelogHdr    = "#1A1A1A"; ChangelogEntry  = "#141414"
+        GroupHeaderBg   = "#141414"; RowHoverFg      = "#FFFFFF"
     }
     Light = @{
-        WinBg           = "#EEF2F7"; PanelBg         = "#FFFFFF"; HeaderBg        = "#DDE3EE"
-        StatusBg        = "#DDE3EE"; BottomBarBg     = "#C8D0DF"; InputBg         = "#FFFFFF"
-        InputFg         = "#1E293B"; InputBorder     = "#B0BAD0"; TextPrimary     = "#1E293B"
-        TextSecondary   = "#3D4F6B"; TextMuted       = "#5A6A85"; TextAccent      = "#5B21B6"
-        Accent          = "#7C3AED"; AccentHover     = "#6D28D9"; BtnNeutral      = "#64748B"
-        BtnNeutralHover = "#475569"; BtnBlue         = "#2563EB"; BtnBlueHover    = "#1D4ED8"
-        BtnDanger       = "#DC2626"; BtnDangerDark   = "#B91C1C"; BtnGreen        = "#059669"
-        BtnAmber        = "#B45309"; BtnAmberScan    = "#D97706"; Border          = "#B0BAD0"
-        BorderLight     = "#C8D0DF"; RowHover        = "#C4B5FD"; RowSelected     = "#A78BFA"
-        RowSelectedDupe = "#FDE68A"; BarBg           = "#C8D0DF"; SeparatorFg     = "#B0BAD0"
-        BreadcrumbFg    = "#5B21B6"; BreadcrumbMuted = "#4B5A72"; RowHoverFg      = "#1E293B"
-        NoAccessFg      = "#B91C1C"; FolderFg        = "#1D4ED8"; FileFg          = "#1E293B"
-        WarnFg          = "#92400E"; BadgeFg         = "White";   DriveBar        = "#6D28D9"
-        DriveBarWarn    = "#B45309"; DriveBarCrit    = "#B91C1C"; SizeBadgeVL     = "#DC2626"
-        SizeBadgeL      = "#EA580C"; SizeBadgeM      = "#2563EB"; SizeBadgeS      = "#16A34A"
-        SizeBadgeVS     = "#64748B"; ChangelogHdr    = "#DDE3EE"; ChangelogEntry  = "#FFFFFF"
-        GroupHeaderBg   = "#DDE3EE"
+        # --- Sideforge Light Mode -----------------------------------------
+        # Anvil-Neutrals statt Blaugrau (FAFAF7 = warmes Off-White)
+        WinBg           = "#FAFAF7"; PanelBg         = "#FFFFFF"; HeaderBg        = "#F1EFE8"
+        StatusBg        = "#F1EFE8"; BottomBarBg     = "#E5E5E0"; InputBg         = "#FFFFFF"
+        InputFg         = "#1A1A1A"; InputBorder     = "#D3D1C7"; TextPrimary     = "#1A1A1A"
+        TextSecondary   = "#5F5E5A"; TextMuted       = "#888780"; TextAccent      = "#8C3800"
+        # Ember-Akzent (kraeftiges Orange)
+        Accent          = "#E8600A"; AccentHover     = "#CC5208"; BtnNeutral      = "#5F5E5A"
+        BtnNeutralHover = "#444441"; BtnBlue         = "#E8600A"; BtnBlueHover    = "#CC5208"
+        BtnDanger       = "#DC2626"; BtnDangerDark   = "#991B1B"; BtnGreen        = "#639922"
+        BtnDupe         = "#E8600A"; BtnDupeHover    = "#CC5208"
+        BtnAmber        = "#BA7517"; BtnAmberScan    = "#E8600A"; Border          = "#D3D1C7"
+        BorderLight     = "#E5E5E0"; RowHover        = "#FDD9BC"; RowSelected     = "#F5A05A"
+        RowSelectedDupe = "#C9DEA0"; BarBg           = "#E5E5E0"; SeparatorFg     = "#B4B2A9"
+        BreadcrumbFg    = "#8C3800"; BreadcrumbMuted = "#5F5E5A"; RowHoverFg      = "#1A1A1A"
+        NoAccessFg      = "#991B1B"; FolderFg        = "#8C3800"; FileFg          = "#1A1A1A"
+        WarnFg          = "#8C3800"; BadgeFg         = "White";   DriveBar        = "#E8600A"
+        DriveBarWarn    = "#BA7517"; DriveBarCrit    = "#991B1B"; SizeBadgeVL     = "#DC2626"
+        SizeBadgeL      = "#E8600A"; SizeBadgeM      = "#2563EB"; SizeBadgeS      = "#639922"
+        SizeBadgeVS     = "#5F5E5A"; ChangelogHdr    = "#F1EFE8"; ChangelogEntry  = "#FFFFFF"
+        GroupHeaderBg   = "#F1EFE8"
     }
 }
 # $T wird nach Load-Config gesetzt
@@ -687,23 +719,36 @@ if (-not $isAdmin) {
     [xml]$AdminXAML = @"
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="$($L.AdminTitle)" Height="240" Width="440"
+        Title="Sideforge - $($L.AdminTitle)" Height="280" Width="460"
         WindowStartupLocation="CenterScreen" ResizeMode="NoResize" Background="$($T.WinBg)">
     <Grid Margin="24">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <TextBlock Grid.Row="0" Text="$($L.AdminWarning)"
+        <!-- Sideforge Brand-Row -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,14">
+            <Border Width="28" Height="28" CornerRadius="5" Background="#1A1A1A" VerticalAlignment="Center" Margin="0,0,8,0">
+                <Grid>
+                    <TextBlock Text="S" FontFamily="Georgia" FontStyle="Italic" FontWeight="Bold" FontSize="17" Foreground="#E8600A" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="4,0,0,1"/>
+                    <TextBlock Text="F" FontFamily="Georgia" FontStyle="Italic" FontWeight="Bold" FontSize="17" Foreground="#F5F5F5" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,4,1"/>
+                </Grid>
+            </Border>
+            <TextBlock Text="Side" FontSize="14" FontWeight="Bold" Foreground="$($T.TextPrimary)" VerticalAlignment="Center"/>
+            <TextBlock Text="forge" FontSize="14" FontWeight="Bold" Foreground="$($T.TextAccent)" VerticalAlignment="Center"/>
+            <TextBlock Text=" / DiskLens" FontSize="12" Foreground="$($T.TextMuted)" VerticalAlignment="Center" Margin="4,1,0,0"/>
+        </StackPanel>
+        <TextBlock Grid.Row="1" Text="$($L.AdminWarning)"
                    FontSize="17" FontWeight="Bold" Foreground="$($T.WarnFg)" Margin="0,0,0,10"/>
-        <TextBlock Grid.Row="1" TextWrapping="Wrap" Foreground="$($T.TextPrimary)" FontSize="13" Margin="0,0,0,6"
+        <TextBlock Grid.Row="2" TextWrapping="Wrap" Foreground="$($T.TextPrimary)" FontSize="13" Margin="0,0,0,6"
                    Text="$($L.AdminText1)"/>
-        <TextBlock Grid.Row="2" TextWrapping="Wrap" Foreground="$($T.TextSecondary)" FontSize="12"
+        <TextBlock Grid.Row="3" TextWrapping="Wrap" Foreground="$($T.TextSecondary)" FontSize="12"
                    Text="$($L.AdminText2)"/>
-        <Grid Grid.Row="3" Margin="0,16,0,0">
+        <Grid Grid.Row="4" Margin="0,16,0,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
@@ -714,7 +759,7 @@ if (-not $isAdmin) {
                     <Border Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
-                    <ControlTemplate.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter Property="Background" Value="#B45309"/></Trigger></ControlTemplate.Triggers>
+                    <ControlTemplate.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter Property="Background" Value="$($T.AccentHover)"/></Trigger></ControlTemplate.Triggers>
                 </ControlTemplate></Button.Template>
             </Button>
             <Button x:Name="btnAdminNo" Grid.Column="1" Content="$($L.AdminNo)" Margin="6,0,0,0"
@@ -745,22 +790,36 @@ if (-not $isAdmin) {
 [xml]$DriveXAML = @"
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="$($L.DriveTitle)" Height="420" Width="480"
+        Title="Sideforge - $($L.DriveTitle)" Height="460" Width="500"
         WindowStartupLocation="CenterScreen" ResizeMode="NoResize" Background="$($T.WinBg)">
     <Grid Margin="20">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <TextBlock Grid.Row="0" Text="$($L.DriveHeader)"
+        <!-- Sideforge Brand-Row -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,14">
+            <Border Width="28" Height="28" CornerRadius="5" Background="#1A1A1A" VerticalAlignment="Center" Margin="0,0,8,0">
+                <Grid>
+                    <TextBlock Text="S" FontFamily="Georgia" FontStyle="Italic" FontWeight="Bold" FontSize="17" Foreground="#E8600A" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="4,0,0,1"/>
+                    <TextBlock Text="F" FontFamily="Georgia" FontStyle="Italic" FontWeight="Bold" FontSize="17" Foreground="#F5F5F5" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,4,1"/>
+                </Grid>
+            </Border>
+            <TextBlock Text="Side" FontSize="14" FontWeight="Bold" Foreground="$($T.TextPrimary)" VerticalAlignment="Center"/>
+            <TextBlock Text="forge" FontSize="14" FontWeight="Bold" Foreground="$($T.TextAccent)" VerticalAlignment="Center"/>
+            <TextBlock Text=" / DiskLens" FontSize="12" Foreground="$($T.TextMuted)" VerticalAlignment="Center" Margin="4,1,0,0"/>
+        </StackPanel>
+
+        <TextBlock Grid.Row="1" Text="$($L.DriveHeader)"
                    FontSize="18" FontWeight="Bold" Foreground="$($T.TextAccent)" Margin="0,0,0,4"/>
-        <TextBlock Grid.Row="1" Text="$($L.DriveSubtitle)"
+        <TextBlock Grid.Row="2" Text="$($L.DriveSubtitle)"
                    FontSize="12" Foreground="$($T.TextMuted)" Margin="0,0,0,12"/>
 
-        <ListBox x:Name="lstDrives" Grid.Row="2" Background="$($T.PanelBg)" BorderBrush="$($T.BorderLight)"
+        <ListBox x:Name="lstDrives" Grid.Row="3" Background="$($T.PanelBg)" BorderBrush="$($T.BorderLight)"
                  BorderThickness="1" Margin="0,0,0,12"
                  FontSize="13" FontFamily="Consolas"
                  ScrollViewer.HorizontalScrollBarVisibility="Disabled">
@@ -787,7 +846,7 @@ if (-not $isAdmin) {
             </ListBox.ItemContainerStyle>
         </ListBox>
 
-        <Grid Grid.Row="3">
+        <Grid Grid.Row="4">
             <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
             <Button x:Name="btnDriveOk" Grid.Column="0" Content="$($L.DriveOk)" Margin="0,0,6,0"
                     Background="$($T.Accent)" Foreground="White" FontWeight="SemiBold" Padding="12,8" BorderThickness="0" Cursor="Hand">
@@ -851,7 +910,7 @@ if ($driveResult -eq $true -and $lstDrives.SelectedItem) {
 <Window
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Title="Disk Lens" Height="700" Width="1050"
+    Title="Sideforge - DiskLens" Height="700" Width="1050"
     WindowStartupLocation="Manual"
     Background="$($T.WinBg)">
 
@@ -973,9 +1032,30 @@ if ($driveResult -eq $true -and $lstDrives.SelectedItem) {
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <StackPanel Grid.Column="0">
-                <TextBlock Text="Disk Lens" FontSize="22" FontWeight="Bold" Foreground="$($T.TextAccent)"/>
-                <TextBlock x:Name="lblSubtitle" Text="$($L.AppSubtitle)" FontSize="12" Foreground="$($T.TextMuted)" Margin="0,3,0,0"/>
+            <StackPanel Grid.Column="0" Orientation="Horizontal">
+                <!-- Sideforge SF Logo-Kachel -->
+                <Border Width="44" Height="44" CornerRadius="8" Background="#1A1A1A"
+                        VerticalAlignment="Center" Margin="0,0,14,0">
+                    <Grid>
+                        <TextBlock Text="S" FontFamily="Georgia" FontStyle="Italic" FontWeight="Bold"
+                                   FontSize="26" Foreground="#E8600A"
+                                   HorizontalAlignment="Left" VerticalAlignment="Center"
+                                   Margin="6,0,0,2"/>
+                        <TextBlock Text="F" FontFamily="Georgia" FontStyle="Italic" FontWeight="Bold"
+                                   FontSize="26" Foreground="#F5F5F5"
+                                   HorizontalAlignment="Right" VerticalAlignment="Center"
+                                   Margin="0,0,6,2"/>
+                    </Grid>
+                </Border>
+                <StackPanel VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Side" FontSize="22" FontWeight="Bold" Foreground="$($T.TextPrimary)"/>
+                        <TextBlock Text="forge" FontSize="22" FontWeight="Bold" Foreground="$($T.TextAccent)"/>
+                        <TextBlock Text="  /  DiskLens" FontSize="14" FontWeight="Normal" Foreground="$($T.TextMuted)"
+                                   VerticalAlignment="Center" Margin="4,2,0,0"/>
+                    </StackPanel>
+                    <TextBlock x:Name="lblSubtitle" Text="$($L.AppSubtitle)" FontSize="12" Foreground="$($T.TextMuted)" Margin="0,2,0,0"/>
+                </StackPanel>
             </StackPanel>
             <Grid Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center">
                 <Grid.RowDefinitions>
@@ -1070,11 +1150,11 @@ if ($driveResult -eq $true -and $lstDrives.SelectedItem) {
                     ToolTip="$($L.TooltipExplorer)"/>
 
             <Button x:Name="btnDupeFinder" Grid.Column="5" Style="{StaticResource Btn}"
-                    Content="$($L.BtnDupes)" Margin="8,0,0,0" Background="$($T.BtnGreen)"
+                    Content="$($L.BtnDupes)" Margin="8,0,0,0" Background="$($T.BtnDupe)"
                     ToolTip="$($L.TooltipDupes)"/>
 
             <Button x:Name="btnEmptyFolders" Grid.Column="6" Style="{StaticResource Btn}"
-                    Content="$($L.BtnEmpty)" Margin="8,0,0,0" Background="$($T.BtnAmber)"
+                    Content="$($L.BtnEmpty)" Margin="8,0,0,0" Background="$($T.BtnAmberScan)"
                     ToolTip="$($L.TooltipEmpty)"/>
         </Grid>
 
@@ -2726,7 +2806,7 @@ function fmt($b) {
 [xml]$xaml = @"
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Disk Lens – ##L.DupeTitle##" Height="700" Width="1000"
+        Title="Sideforge - DiskLens – ##L.DupeTitle##" Height="700" Width="1000"
         Background="##T.WinBg##" Foreground="##T.TextPrimary##" WindowStartupLocation="CenterScreen">
     <Window.Resources>
         <Style x:Key="Btn" TargetType="Button">
@@ -2764,9 +2844,24 @@ function fmt($b) {
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- Header -->
+        <!-- Header mit Sideforge-Branding -->
         <StackPanel Grid.Row="0" Margin="0,0,0,14">
-            <TextBlock Text="##L.DupeHeader##" FontSize="22" FontWeight="Bold" Foreground="##T.BtnGreen##"/>
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                <Border Width="36" Height="36" CornerRadius="7" Background="#1A1A1A" VerticalAlignment="Center" Margin="0,0,10,0">
+                    <Grid>
+                        <TextBlock Text="S" FontFamily="Georgia" FontStyle="Italic" FontWeight="Bold" FontSize="21" Foreground="#E8600A" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,0,0,1"/>
+                        <TextBlock Text="F" FontFamily="Georgia" FontStyle="Italic" FontWeight="Bold" FontSize="21" Foreground="#F5F5F5" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,5,1"/>
+                    </Grid>
+                </Border>
+                <StackPanel VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Side" FontSize="16" FontWeight="Bold" Foreground="##T.TextPrimary##"/>
+                        <TextBlock Text="forge" FontSize="16" FontWeight="Bold" Foreground="##T.TextAccent##"/>
+                        <TextBlock Text="  /  DiskLens  /  ##L.DupeTitle##" FontSize="12" Foreground="##T.TextMuted##" VerticalAlignment="Center" Margin="4,1,0,0"/>
+                    </StackPanel>
+                </StackPanel>
+            </StackPanel>
+            <TextBlock Text="##L.DupeHeader##" FontSize="22" FontWeight="Bold" Foreground="##T.BtnDupe##"/>
             <TextBlock Text="##L.DupeSubtitle1##" FontSize="11" Foreground="##T.TextSecondary##" Margin="0,3,0,0"/>
             <TextBlock Text="##L.DupeSubtitle2##" FontSize="12" Foreground="##T.TextMuted##" Margin="0,3,0,0"/>
         </StackPanel>
@@ -2785,7 +2880,7 @@ function fmt($b) {
             <Button x:Name="btnBrowse" Grid.Column="1" Style="{StaticResource Btn}"
                     Content="##L.BtnBrowse##" Margin="8,0,0,0" Background="##T.BtnNeutral##"/>
             <Button x:Name="btnScan" Grid.Column="2" Style="{StaticResource Btn}"
-                    Content="##L.BtnScanDupe##" Margin="8,0,0,0" Background="##T.BtnGreen##"/>
+                    Content="##L.BtnScanDupe##" Margin="8,0,0,0" Background="##T.BtnDupe##"/>
             <Button x:Name="btnCancel" Grid.Column="3" Style="{StaticResource Btn}"
                     Content="##L.BtnCancel##" Margin="8,0,0,0" Background="##T.BtnDanger##" IsEnabled="False"/>
         </Grid>
@@ -2797,8 +2892,8 @@ function fmt($b) {
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <ProgressBar x:Name="pb" Grid.Column="0" Height="10" Minimum="0" Maximum="100"
-                         Background="##T.BtnNeutral##" Foreground="##T.BtnGreen##" BorderThickness="0"/>
-            <TextBlock x:Name="lblPct" Grid.Column="1" Foreground="##T.BtnGreen##" FontWeight="SemiBold"
+                         Background="##T.BtnNeutral##" Foreground="##T.BtnDupe##" BorderThickness="0"/>
+            <TextBlock x:Name="lblPct" Grid.Column="1" Foreground="##T.BtnDupe##" FontWeight="SemiBold"
                        FontSize="12" Margin="10,0,0,0" VerticalAlignment="Center" Text=""/>
         </Grid>
 
@@ -2811,7 +2906,7 @@ function fmt($b) {
                     <GridView.ColumnHeaderContainerStyle>
                         <Style TargetType="GridViewColumnHeader">
                             <Setter Property="Background" Value="##T.HeaderBg##"/>
-                            <Setter Property="Foreground" Value="##T.BtnGreen##"/>
+                            <Setter Property="Foreground" Value="##T.BtnDupe##"/>
                             <Setter Property="FontWeight" Value="SemiBold"/>
                             <Setter Property="Padding" Value="8,6"/>
                             <Setter Property="BorderBrush" Value="##T.Border##"/>
@@ -2831,7 +2926,7 @@ function fmt($b) {
                         <DataTemplate>
                             <Border Background="##T.HeaderBg##" Padding="8,4" Margin="0,4,0,0" CornerRadius="4">
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="{Binding Name}" Foreground="##T.BtnGreen##" FontWeight="Bold" FontSize="12"/>
+                                    <TextBlock Text="{Binding Name}" Foreground="##T.BtnDupe##" FontWeight="Bold" FontSize="12"/>
                                     <TextBlock Text="{Binding ItemCount, StringFormat=' — {0} ##L.DupeGroupFiles##'}" Foreground="##T.TextMuted##" FontSize="12" Margin="4,0,0,0"/>
                                 </StackPanel>
                             </Border>
@@ -2866,7 +2961,7 @@ function fmt($b) {
             </Grid.ColumnDefinitions>
             <TextBlock x:Name="lblStatus" Grid.Column="0" Foreground="##T.TextMuted##" FontSize="12"
                        VerticalAlignment="Center" Text="##L.DupeStatusReady##"/>
-            <TextBlock x:Name="lblWaste"  Grid.Column="1" Foreground="##T.BtnGreen##" FontWeight="Bold"
+            <TextBlock x:Name="lblWaste"  Grid.Column="1" Foreground="##T.BtnDupe##" FontWeight="Bold"
                        FontSize="12" VerticalAlignment="Center" Margin="0,0,16,0" Text=""/>
             <Button x:Name="btnDelete" Grid.Column="2" Style="{StaticResource Btn}"
                     Content="##L.DupeDeleteSelected##" Background="##T.BtnDanger##" IsEnabled="False"/>
@@ -3231,7 +3326,7 @@ $startPath = "STARTPATH_PLACEHOLDER"
 $xaml = [xml]@"
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Disk Lens – ##L.EmptyTitle##" Height="640" Width="860"
+        Title="Sideforge - DiskLens – ##L.EmptyTitle##" Height="640" Width="860"
         Background="##T.WinBg##" Foreground="##T.TextPrimary##" FontFamily="Segoe UI" FontSize="13"
         WindowStartupLocation="CenterScreen">
   <Window.Resources>
@@ -3271,8 +3366,23 @@ $xaml = [xml]@"
       <RowDefinition Height="Auto"/>
     </Grid.RowDefinitions>
 
-    <!-- Header -->
+    <!-- Header mit Sideforge-Branding -->
     <StackPanel Grid.Row="0" Margin="0,0,0,16">
+      <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+        <Border Width="36" Height="36" CornerRadius="7" Background="#1A1A1A" VerticalAlignment="Center" Margin="0,0,10,0">
+          <Grid>
+            <TextBlock Text="S" FontFamily="Georgia" FontStyle="Italic" FontWeight="Bold" FontSize="21" Foreground="#E8600A" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,0,0,1"/>
+            <TextBlock Text="F" FontFamily="Georgia" FontStyle="Italic" FontWeight="Bold" FontSize="21" Foreground="#F5F5F5" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,5,1"/>
+          </Grid>
+        </Border>
+        <StackPanel VerticalAlignment="Center">
+          <StackPanel Orientation="Horizontal">
+            <TextBlock Text="Side" FontSize="16" FontWeight="Bold" Foreground="##T.TextPrimary##"/>
+            <TextBlock Text="forge" FontSize="16" FontWeight="Bold" Foreground="##T.TextAccent##"/>
+            <TextBlock Text="  /  DiskLens  /  ##L.EmptyTitle##" FontSize="12" Foreground="##T.TextMuted##" VerticalAlignment="Center" Margin="4,1,0,0"/>
+          </StackPanel>
+        </StackPanel>
+      </StackPanel>
       <TextBlock Text="##L.EmptyHeader##" FontSize="22" FontWeight="Bold" Foreground="##T.BtnAmberScan##"/>
       <TextBlock Text="##L.EmptySubtitle##" FontSize="11" Foreground="##T.TextSecondary##" Margin="0,3,0,0"/>
     </StackPanel>

@@ -1,45 +1,47 @@
-# Disk Lens
+# Sideforge · Disk Lens
 
 > **A fast, portable WPF tool for Windows to analyze, visualize, and clean up disk space.**  
-> Written entirely in PowerShell — no installation, no dependencies, single file.
+> Single-file PowerShell — no installation, no dependencies.
 
-![Version](https://img.shields.io/badge/version-1.2.6-7C3AED?style=flat-square)
+![Version](https://img.shields.io/badge/version-1.3.0-E8600A?style=flat-square)
 ![Platform](https://img.shields.io/badge/platform-Windows-0078D4?style=flat-square)
 ![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-012456?style=flat-square)
-![License](https://img.shields.io/badge/license-MIT-22C55E?style=flat-square)
+![License](https://img.shields.io/badge/license-MIT-639922?style=flat-square)
+![Sideforge](https://img.shields.io/badge/Sideforge-Design%20System-E8600A?style=flat-square)
 
 🇩🇪 [Deutsche Version](README.de.md)
+
+Part of the **[Sideforge](https://github.com/C129H223N3O54/SideForge)** tool suite.
 
 ---
 
 ## Screenshot
 
-> *(Add a screenshot here — e.g. `![Screenshot](docs/screenshot.png)`)*
+> *(Add a screenshot here — e.g. `![Screenshot](docs/screenshot-dark.png)`)*
 
 ---
 
 ## Features
 
 ### Analysis
-- **Parallel folder scan** with live updates while the scan is running
-- **Progress bar** showing percentage and current folder
-- **Size class badges** (Very large / Large / Medium / Small / Very small)
-- **Share bar** visually showing how much space each folder uses
-- **Tree view** as an alternative to the flat list
-- **Cancel** at any time — partial results remain visible
+- **Parallel folder scan** with live updates while running
+- **Progress bar** with percentage and current folder
+- **Size class badges** — Very Large / Large / Medium / Small / Very Small
+- **Share bar** showing each folder's proportion visually
+- **Cancel** at any time — partial results stay visible
 
 ### File Browser
-- Built-in side-panel browser with double-click navigation
+- Side-panel browser with double-click navigation
 - **Breadcrumb navigation** with clickable path segments
-- Asynchronous size calculation (UI stays responsive)
-- **Size cache** — already calculated folders are not re-scanned on revisit
-- Sort by column click (Name, Type, Size, Date)
+- Asynchronous size calculation — UI stays responsive
+- **Size cache** — visited folders are not re-scanned
+- Sort by column click (Name, Type, Size, Date) — **default: size descending**
 - Back and Up navigation
 - Context menu: Open, Show in Explorer, Rename, Copy, Cut, Paste, New folder, Delete, Copy path
 
 ### Duplicate Finder
 - Three-stage hash algorithm: size pre-filter → quick hash → full MD5
-- Results grouped by duplicate group with wasted space summary
+- Results grouped by duplicate set with wasted space summary
 - Delete to Recycle Bin or permanently
 - Runs as a **separate process** — does not block the main window
 
@@ -55,12 +57,12 @@
 - **Temp folder size** with details and clean button
 
 ### Convenience
-- **Language switch** — English / German, toggle live via button in the header
-- **Dark / Light mode** — toggle live via button in the header, system theme detected automatically on first launch
+- **Language switch** — English / German, toggle live via header button
+- **Dark / Light mode** — toggle via header button, system theme on first launch
 - **Path history** — last 10 paths, stored persistently
 - **Window position and size** saved and restored
 - **Admin check** at startup with option to restart as Administrator
-- **Drive selection dialog** at startup
+- **Drive selection** dialog at startup
 
 ---
 
@@ -81,7 +83,7 @@
 powershell -ExecutionPolicy Bypass -File DiskLens.ps1
 ```
 
-Or right-click the file → **"Run with PowerShell"**.
+Or right-click → **"Run with PowerShell"**.
 
 > **Tip:** Run as Administrator for full access to all system folders.  
 > Disk Lens will prompt you at startup.
@@ -93,7 +95,19 @@ Or right-click the file → **"Run with PowerShell"**.
 1. **Admin check** — run as Administrator or continue with standard rights
 2. **Drive selection** — choose which drive to analyze
 
-Language and theme are switched live via buttons in the top-right corner — no restart needed. Your preferences are saved automatically.
+Language and theme are switched live via buttons in the top-right corner. Preferences are saved automatically in `%APPDATA%\DiskLens\config.xml`.
+
+---
+
+## Design
+
+Disk Lens uses the **[Sideforge](https://github.com/C129H223N3O54/SideForge)** design system:
+
+- **Ember** orange as the primary accent (`#E8600A` Light / `#F07E2D` Dark)
+- **Anvil** warm grays as neutrals (replaces the old cool blue-gray)
+- **Moss** green reserved for success states
+- SF logo tile in every window — black tile, "S" in Ember, "F" in white, Georgia italic bold
+- Full Light and Dark mode support
 
 ---
 
@@ -101,16 +115,14 @@ Language and theme are switched live via buttons in the top-right corner — no 
 
 ```
 DiskLens/
-├── DiskLens.ps1     # Entire application — GUI, logic, tools (single file)
+├── DiskLens.ps1     # Entire application — single file
 ├── README.md        # English
 ├── README.de.md     # Deutsch
 ├── LICENSE
 └── .gitignore
 ```
 
-The entire application — GUI, scan engine, duplicate finder, empty folder finder, all dialogs — lives in a single `.ps1` file. No installation, no registry entries, no setup required.
-
-Configuration (window position, path history, language, theme) is stored at `%APPDATA%\DiskLens\config.xml`.
+Configuration is stored at `%APPDATA%\DiskLens\config.xml` (window position, path history, language, theme).
 
 ---
 
@@ -130,54 +142,45 @@ Configuration (window position, path history, language, theme) is stored at `%AP
 
 ## Changelog
 
+### v1.3.0 — 2026-04-24
+- **Sideforge design system** introduced (Ember / Moss / Anvil palette)
+- Accent color changed from purple to Sideforge orange
+- SF logo tile in all windows — main, admin check, drive selection, sub-tools
+- Window title: `Sideforge - DiskLens` throughout
+- Light mode: warm Anvil gray instead of cool blue-gray
+- Dark mode: warm anthracite with subtle orange accent
+- Duplicate Finder rebranded with orange accent
+
 ### v1.2.6 — 2026-04-22
 - Unified button colors across all windows
-- Duplicate Finder: consistent green accent throughout
-- Empty Folder Finder: consistent amber accent throughout
-- Disabled buttons: uniform gray — no more washed-out colors
-- Browser: size-descending sort as default (live sorting)
+- Browser: size-descending sort as default with live sorting
 - DataGrid column widths evenly distributed
 - Size class badges: correct colors in light mode (bug fix)
 - Code cleanup: removed dead code
 
 ### v1.2.5 — 2026-04-03
-- **Live Dark / Light toggle** via button in header — no restart needed
-- **Live language switch** via button in header — no restart needed
-- No startup dialogs for language / theme — loaded from config.xml automatically
+- Live Dark / Light toggle via header button — no restart needed
+- Live language switch via header button — no restart needed
+- No more startup dialogs for language / theme — loaded from config automatically
 - First launch: system theme detected automatically
 
 ### v1.2.4 — 2026-04-03
 - Dark / Light mode with complete color palette
-- High-contrast light mode palette
-- Code cleanup
 
 ### v1.2.3 — 2026-03-13
-- **Language selection** at startup — English or German
-- **In-app language switch** button — switch at any time without restarting
-- Fully bilingual UI: all buttons, labels, dialogs, status messages, context menus
-- Renamed to **Disk Lens** (`DiskLens.ps1`)
-
-### v1.2.2 — 2026-03-13
-- Browser: `IO.Directory` methods replace `Get-ChildItem` (faster, no pipeline overhead)
-- Browser runspace: fixed silent `Dispatcher.Invoke` scoping bug
-- Duplicate finder: replaced COM `Shell.Application` with `VisualBasic.FileIO.FileSystem`
-- Dead code removed
-
-### v1.2.1 — 2026-03-13
-- Browser size cache — no re-scan when navigating back
-- Stack-based `IO.Directory` scan replaces `Get-ChildItem -Recurse`
+- Language selection — English or German, fully bilingual UI
+- Renamed to **Disk Lens**
 
 ### v1.2.0 — 2026-03-12
 - Breadcrumb navigation in file browser
-- Empty folder finder as separate process with progress bar
+- Empty Folder Finder as separate process
 
 ### v1.1.5 — 2026-03-12
 - Asynchronous folder size calculation in browser
-- Sort by column click with direction arrow
-- Duplicate finder with MD5 hash, grouping, wasted space display
+- Duplicate Finder with MD5 hash, grouping, wasted space
 
 ### v1.1.3 — 2026-02-25
-- Real-time drive usage in status bar
+- Real-time drive usage status bar
 - Recycle Bin and Temp display with empty buttons
 - Changelog window
 
@@ -188,10 +191,9 @@ Configuration (window position, path history, language, theme) is stored at `%AP
 
 ## Credits
 
-The idea, requirements and direction for this project came from **Jan Erik Mueller**.  
-The entire codebase — every line of PowerShell, the WPF GUI, the scan engine, all dialogs and tools — was written by **[Claude](https://claude.ai)**, an AI assistant made by [Anthropic](https://www.anthropic.com).
-
-This project is an example of human–AI collaboration: a person with a vision, and an AI that implements it.
+Idea, requirements, and direction by **Jan Erik Mueller** ([@kampfmade](https://github.com/kampfmade)).  
+Code written by **[Claude](https://claude.ai)** (Anthropic).  
+Design system: **[Sideforge](https://github.com/C129H223N3O54/SideForge)**.
 
 ---
 
