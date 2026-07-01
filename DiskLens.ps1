@@ -12,8 +12,14 @@
 param()
 
 # ===== Version & Changelog =====
-$script:AppVersion = "1.3.0"
+$script:AppVersion = "1.3.1"
 $script:ChangelogDE = @(
+    [PSCustomObject]@{ Version="1.3.1"; Datum="25.04.2026"; Aenderungen=@(
+        "Laufwerksauswahl beim Start entfernt - Startpfad ist das Systemlaufwerk, Wechsel per Durchsuchen-Button"
+        "Neuer HTML-Export der Scan-Ergebnisse (uebernimmt Tool-Theme, Light/Dark umschaltbar)"
+        "Neuer CSV-Export mit skriptfreundlichen Rohdaten (inkl. Groesse in Bytes)"
+        "Export-Button in der Toolbar (aktiv nach abgeschlossenem Scan)"
+    )}
     [PSCustomObject]@{ Version="1.3.0"; Datum="24.04.2026"; Aenderungen=@(
         "Sideforge Design-System eingefuehrt (Ember/Moss/Anvil Palette)"
         "Akzentfarbe von Lila auf Sideforge-Orange umgestellt"
@@ -110,6 +116,12 @@ $script:ChangelogDE = @(
     )}
 )
 $script:ChangelogEN = @(
+    [PSCustomObject]@{ Version="1.3.1"; Datum="2026-04-25"; Aenderungen=@(
+        "Removed drive selection at startup - start path is the system drive, change via Browse button"
+        "New HTML export of scan results (adopts tool theme, Light/Dark toggle)"
+        "New CSV export with script-friendly raw data (incl. size in bytes)"
+        "Export button in toolbar (enabled after a completed scan)"
+    )}
     [PSCustomObject]@{ Version="1.3.0"; Datum="2026-04-24"; Aenderungen=@(
         "Introduced Sideforge design system (Ember/Moss/Anvil palette)"
         "Accent color changed from purple to Sideforge orange"
@@ -313,6 +325,7 @@ $script:Strings = @{
         BtnScan             = "▶  Analyse starten"
         BtnCancel           = "⏹  Abbrechen"
         BtnExplorer         = "Im Explorer oeffnen"
+        BtnExport           = "Export"
         BtnDupes            = "🔍  Duplikate"
         BtnEmpty            = "🗁  Leere Ordner"
         BtnChangelog        = "Changelog"
@@ -320,6 +333,7 @@ $script:Strings = @{
         TooltipSwitchLang   = "Switch to English"
         TooltipPath         = "Pfad aus History auswaehlen"
         TooltipExplorer     = "Ausgewaehlten Ordner im Explorer oeffnen"
+        TooltipExport       = "Scan-Ergebnisse als HTML-Bericht oder CSV exportieren"
         TooltipDupes        = "Doppelte Dateien finden und loeschen"
         TooltipEmpty        = "Leere Ordner finden und loeschen"
         ColPath             = "Pfad"
@@ -364,6 +378,18 @@ $script:Strings = @{
         StatusNoAccess      = "  |  {0} ohne Zugriff"
         SummaryText         = "Gesamt: {0}  |  {1} Dateien"
         ProgressCancelled   = "Abgebrochen"
+        ExportDialogTitle   = "HTML-Bericht speichern"
+        ExportReportTitle   = "Speicherplatz-Analyse"
+        ExportToggleTheme   = "Design wechseln"
+        ExportMetaPath      = "Analysierter Pfad"
+        ExportMetaSize      = "Gesamtgroesse"
+        ExportMetaFolders   = "Ordner"
+        ExportMetaFiles     = "Dateien"
+        ExportMetaGenerated = "Erstellt am"
+        ExportCancelled     = "Scan wurde abgebrochen - unvollstaendige Daten"
+        ExportNoAccess      = "{0} Ordner ohne Zugriff"
+        ExportFooter        = "Erstellt mit Sideforge DiskLens"
+        ExportDone          = "HTML-Bericht gespeichert: {0}"
         BrowseDesc          = "Startordner auswaehlen"
         PathNotFound        = "Der angegebene Pfad existiert nicht oder ist nicht erreichbar:`n{0}"
         PathNotFoundTitle   = "Pfad nicht gefunden"
@@ -487,6 +513,7 @@ $script:Strings = @{
         BtnScan             = "▶  Start analysis"
         BtnCancel           = "⏹  Cancel"
         BtnExplorer         = "Open in Explorer"
+        BtnExport           = "Export"
         BtnDupes            = "🔍  Duplicates"
         BtnEmpty            = "🗁  Empty folders"
         BtnChangelog        = "Changelog"
@@ -494,6 +521,7 @@ $script:Strings = @{
         TooltipSwitchLang   = "Auf Deutsch wechseln"
         TooltipPath         = "Select path from history"
         TooltipExplorer     = "Open selected folder in Explorer"
+        TooltipExport       = "Export scan results as HTML report or CSV"
         TooltipDupes        = "Find and delete duplicate files"
         TooltipEmpty        = "Find and delete empty folders"
         ColPath             = "Path"
@@ -538,6 +566,18 @@ $script:Strings = @{
         StatusNoAccess      = "  |  {0} without access"
         SummaryText         = "Total: {0}  |  {1} files"
         ProgressCancelled   = "Cancelled"
+        ExportDialogTitle   = "Save HTML report"
+        ExportReportTitle   = "Disk Space Analysis"
+        ExportToggleTheme   = "Toggle theme"
+        ExportMetaPath      = "Analyzed path"
+        ExportMetaSize      = "Total size"
+        ExportMetaFolders   = "Folders"
+        ExportMetaFiles     = "Files"
+        ExportMetaGenerated = "Generated"
+        ExportCancelled     = "Scan was cancelled - incomplete data"
+        ExportNoAccess      = "{0} folders without access"
+        ExportFooter        = "Generated with Sideforge DiskLens"
+        ExportDone          = "HTML report saved: {0}"
         BrowseDesc          = "Select start folder"
         PathNotFound        = "The specified path does not exist or is not accessible:``n{0}"
         PathNotFoundTitle   = "Path not found"
@@ -646,6 +686,7 @@ $script:Strings = @{
 $L = $script:Strings[$script:Lang]
 
 # BrowserItem mit INotifyPropertyChanged damit WPF Aenderungen (z.B. Groesse) live anzeigt
+if (-not ("BrowserItem" -as [type])) {
 Add-Type -ReferencedAssemblies PresentationFramework,PresentationCore,WindowsBase -TypeDefinition @"
 using System;
 using System.ComponentModel;
@@ -667,6 +708,7 @@ public class BrowserItem : INotifyPropertyChanged {
     public bool   HasAccess    { get; set; }
 }
 "@
+}
 
 # ===== Einstellungen / Persistenz =====
 # $script:ConfigPath und $script:Config bereits oben definiert (vor Dialogen)
@@ -786,124 +828,9 @@ if (-not $isAdmin) {
     }
 }
 
-# ===== Laufwerks-Auswahldialog =====
-[xml]$DriveXAML = @"
-<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Sideforge - $($L.DriveTitle)" Height="460" Width="500"
-        WindowStartupLocation="CenterScreen" ResizeMode="NoResize" Background="$($T.WinBg)">
-    <Grid Margin="20">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-
-        <!-- Sideforge Brand-Row -->
-        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,14">
-            <Border Width="28" Height="28" CornerRadius="5" Background="#1A1A1A" VerticalAlignment="Center" Margin="0,0,8,0">
-                <Grid>
-                    <TextBlock Text="S" FontFamily="Georgia" FontStyle="Italic" FontWeight="Bold" FontSize="17" Foreground="#E8600A" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="4,0,0,1"/>
-                    <TextBlock Text="F" FontFamily="Georgia" FontStyle="Italic" FontWeight="Bold" FontSize="17" Foreground="#F5F5F5" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,4,1"/>
-                </Grid>
-            </Border>
-            <TextBlock Text="Side" FontSize="14" FontWeight="Bold" Foreground="$($T.TextPrimary)" VerticalAlignment="Center"/>
-            <TextBlock Text="forge" FontSize="14" FontWeight="Bold" Foreground="$($T.TextAccent)" VerticalAlignment="Center"/>
-            <TextBlock Text=" / DiskLens" FontSize="12" Foreground="$($T.TextMuted)" VerticalAlignment="Center" Margin="4,1,0,0"/>
-        </StackPanel>
-
-        <TextBlock Grid.Row="1" Text="$($L.DriveHeader)"
-                   FontSize="18" FontWeight="Bold" Foreground="$($T.TextAccent)" Margin="0,0,0,4"/>
-        <TextBlock Grid.Row="2" Text="$($L.DriveSubtitle)"
-                   FontSize="12" Foreground="$($T.TextMuted)" Margin="0,0,0,12"/>
-
-        <ListBox x:Name="lstDrives" Grid.Row="3" Background="$($T.PanelBg)" BorderBrush="$($T.BorderLight)"
-                 BorderThickness="1" Margin="0,0,0,12"
-                 FontSize="13" FontFamily="Consolas"
-                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-            <ListBox.ItemContainerStyle>
-                <Style TargetType="ListBoxItem">
-                    <Setter Property="Background" Value="Transparent"/>
-                    <Setter Property="Foreground" Value="$($T.FileFg)"/>
-                    <Setter Property="Padding" Value="10,8"/>
-                    <Setter Property="Margin" Value="2"/>
-                    <Setter Property="Template">
-                        <Setter.Value>
-                            <ControlTemplate TargetType="ListBoxItem">
-                                <Border Background="{TemplateBinding Background}" CornerRadius="4" Padding="{TemplateBinding Padding}">
-                                    <ContentPresenter/>
-                                </Border>
-                                <ControlTemplate.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="True"><Setter Property="Background" Value="$($T.RowHover)"/></Trigger>
-                                    <Trigger Property="IsSelected" Value="True"><Setter Property="Background" Value="$($T.Accent)"/><Setter Property="Foreground" Value="White"/></Trigger>
-                                </ControlTemplate.Triggers>
-                            </ControlTemplate>
-                        </Setter.Value>
-                    </Setter>
-                </Style>
-            </ListBox.ItemContainerStyle>
-        </ListBox>
-
-        <Grid Grid.Row="4">
-            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-            <Button x:Name="btnDriveOk" Grid.Column="0" Content="$($L.DriveOk)" Margin="0,0,6,0"
-                    Background="$($T.Accent)" Foreground="White" FontWeight="SemiBold" Padding="12,8" BorderThickness="0" Cursor="Hand">
-                <Button.Template><ControlTemplate TargetType="Button">
-                    <Border Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
-                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    </Border>
-                    <ControlTemplate.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter Property="Background" Value="$($T.AccentHover)"/></Trigger></ControlTemplate.Triggers>
-                </ControlTemplate></Button.Template>
-            </Button>
-            <Button x:Name="btnDriveCancel" Grid.Column="1" Content="$($L.DriveCancel)" Margin="6,0,0,0"
-                    Background="$($T.BtnNeutral)" Foreground="White" FontWeight="SemiBold" Padding="12,8" BorderThickness="0" Cursor="Hand">
-                <Button.Template><ControlTemplate TargetType="Button">
-                    <Border Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
-                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    </Border>
-                    <ControlTemplate.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter Property="Background" Value="$($T.BtnNeutralHover)"/></Trigger></ControlTemplate.Triggers>
-                </ControlTemplate></Button.Template>
-            </Button>
-        </Grid>
-    </Grid>
-</Window>
-"@
-
-$driveReader = [System.Xml.XmlNodeReader]::new($DriveXAML)
-$driveWindow = [Windows.Markup.XamlReader]::Load($driveReader)
-$lstDrives      = $driveWindow.FindName("lstDrives")
-$btnDriveOk     = $driveWindow.FindName("btnDriveOk")
-$btnDriveCancel = $driveWindow.FindName("btnDriveCancel")
-
-$script:DriveMap = @{}
-$drives = [System.IO.DriveInfo]::GetDrives() | Where-Object { $_.IsReady }
-foreach ($drive in $drives) {
-    $driveType = switch ($drive.DriveType) {
-        "Fixed"     { "[HDD]" }
-        "Removable" { "[USB]" }
-        "Network"   { "[NET]" }
-        "CDRom"     { "[CD] " }
-        default     { "[?]  " }
-    }
-    $freeGB  = [math]::Round($drive.AvailableFreeSpace / 1GB, 1)
-    $totalGB = [math]::Round($drive.TotalSize / 1GB, 1)
-    $label   = if ($drive.VolumeLabel) { $drive.VolumeLabel } else { $L.DriveNoName }
-    $displayText = "$driveType  $($drive.Name)  $label   ($freeGB GB frei / $totalGB GB)"
-    $script:DriveMap[$displayText] = $drive.RootDirectory.FullName
-    $lstDrives.Items.Add($displayText) | Out-Null
-}
-if ($lstDrives.Items.Count -gt 0) { $lstDrives.SelectedIndex = 0 }
-$lstDrives.Add_MouseDoubleClick({ $driveWindow.DialogResult = $true })
-$btnDriveOk.Add_Click({ if ($lstDrives.SelectedItem) { $driveWindow.DialogResult = $true } })
-$btnDriveCancel.Add_Click({ $driveWindow.DialogResult = $false })
-
-$driveResult = $driveWindow.ShowDialog()
-$selectedDrivePath = "C:\"
-if ($driveResult -eq $true -and $lstDrives.SelectedItem) {
-    $selectedDrivePath = $script:DriveMap[$lstDrives.SelectedItem]
-} elseif ($driveResult -ne $true) { exit }
+# ===== Startpfad: Systemlaufwerk (Durchsuchen-Button in der GUI zum Wechseln) =====
+$selectedDrivePath = $env:SystemDrive + "\"
+if (-not $selectedDrivePath -or $selectedDrivePath -eq "\") { $selectedDrivePath = "C:\" }
 
 # ===== HAUPT-XAML =====
 [xml]$XAML = @"
@@ -1129,6 +1056,7 @@ if ($driveResult -eq $true -and $lstDrives.SelectedItem) {
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
             <ComboBox x:Name="cmbPath" Grid.Column="0"
@@ -1145,15 +1073,19 @@ if ($driveResult -eq $true -and $lstDrives.SelectedItem) {
             <Button x:Name="btnCancel" Grid.Column="3" Style="{StaticResource Btn}"
                     Content="$($L.BtnCancel)" Margin="8,0,0,0" Background="$($T.BtnDanger)" IsEnabled="False"/>
 
-            <Button x:Name="btnOpenExplorer" Grid.Column="4" Style="{StaticResource Btn}"
+            <Button x:Name="btnExport" Grid.Column="4" Style="{StaticResource Btn}"
+                    Content="$($L.BtnExport)" Margin="8,0,0,0" Background="$($T.BtnNeutral)" IsEnabled="False"
+                    ToolTip="$($L.TooltipExport)"/>
+
+            <Button x:Name="btnOpenExplorer" Grid.Column="5" Style="{StaticResource Btn}"
                     Content="$($L.BtnExplorer)" Margin="8,0,0,0" Background="$($T.BtnBlue)" IsEnabled="False"
                     ToolTip="$($L.TooltipExplorer)"/>
 
-            <Button x:Name="btnDupeFinder" Grid.Column="5" Style="{StaticResource Btn}"
+            <Button x:Name="btnDupeFinder" Grid.Column="6" Style="{StaticResource Btn}"
                     Content="$($L.BtnDupes)" Margin="8,0,0,0" Background="$($T.BtnDupe)"
                     ToolTip="$($L.TooltipDupes)"/>
 
-            <Button x:Name="btnEmptyFolders" Grid.Column="6" Style="{StaticResource Btn}"
+            <Button x:Name="btnEmptyFolders" Grid.Column="7" Style="{StaticResource Btn}"
                     Content="$($L.BtnEmpty)" Margin="8,0,0,0" Background="$($T.BtnAmberScan)"
                     ToolTip="$($L.TooltipEmpty)"/>
         </Grid>
@@ -1453,6 +1385,7 @@ $btnBrowse      = $window.FindName("btnBrowse")
 $btnScan        = $window.FindName("btnScan")
 $btnCancel      = $window.FindName("btnCancel")
 $btnOpenExplorer= $window.FindName("btnOpenExplorer")
+$btnExport      = $window.FindName("btnExport")
 $btnDupeFinder  = $window.FindName("btnDupeFinder")
 $btnEmptyFolders= $window.FindName("btnEmptyFolders")
 $dgResults      = $window.FindName("dgResults")
@@ -1487,6 +1420,8 @@ $cmbPath.Text = $cmbPath.Items[0]
 
 # ===== Zustandsvariablen =====
 $script:ScanResults     = $null
+$script:ExportData      = $null
+$script:ExportMeta      = $null
 $script:CancelRequested = $false
 
 # ===== Browser-Logik (nativer WPF ListView) =====
@@ -2460,6 +2395,231 @@ $btnOpenExplorer.Add_Click({
     }
 })
 
+# ===== HTML-Export =====
+function Export-ScanResults {
+    $exportPayload = $btnExport.Tag
+    if (-not $exportPayload -or -not $exportPayload.Data -or $exportPayload.Data.Count -eq 0) { return }
+    $exportRows = $exportPayload.Data
+    $meta = $exportPayload.Meta
+
+    $dialog = [System.Windows.Forms.SaveFileDialog]::new()
+    $dialog.Filter   = "HTML-Bericht (*.html)|*.html|CSV (*.csv)|*.csv"
+    $dialog.FileName = "DiskLens-Report_$(Get-Date -Format 'yyyy-MM-dd_HHmm')"
+    $dialog.Title    = $L.ExportDialogTitle
+    if ($dialog.ShowDialog() -ne "OK") { return }
+
+    # Format anhand des gewaehlten Filters bzw. der Endung bestimmen
+    $isCsv = ($dialog.FilterIndex -eq 2) -or ($dialog.FileName -match '\.csv$')
+
+    if ($isCsv) {
+        Export-ScanCsv -Rows $exportRows -Meta $meta -Path $dialog.FileName
+    } else {
+        Export-ScanHtml -Rows $exportRows -Meta $meta -Path $dialog.FileName
+    }
+}
+
+# ===== CSV-Export (skriptfreundliche Rohdaten) =====
+function Export-ScanCsv {
+    param($Rows, $Meta, [string]$Path)
+
+    $records = foreach ($item in $Rows) {
+        [PSCustomObject]@{
+            Rang          = $item.Rang
+            Pfad          = $item.Pfad
+            GroesseBytes  = [long]$item.Groesse
+            GroesseFmt    = $item.GraesseFmt
+            Dateien       = $item.Dateien
+            AnteilProzent = $item.Anteil
+            Groessenklasse= $item.FarbLabel
+            KeinZugriff   = [bool]$item.KeinZugriff
+        }
+    }
+
+    # Semikolon-Trennung: Excel-DE-freundlich; Punkt-Dezimal bleibt skriptfreundlich
+    $records | Export-Csv -Path $Path -NoTypeInformation -Encoding UTF8 -Delimiter ';'
+    Start-Process $Path
+    $lblStatus.Text = $L.ExportDone -f $Path
+}
+
+# ===== HTML-Export =====
+function Export-ScanHtml {
+    param($Rows, $Meta, [string]$Path)
+    $exportRows = $Rows
+    $meta = $Meta
+
+    $genTime = $meta.Timestamp.ToString("yyyy-MM-dd HH:mm")
+
+    # HTML-Escape-Helfer
+    function Esc([string]$s) {
+        if ($null -eq $s) { return "" }
+        return $s.Replace("&","&amp;").Replace("<","&lt;").Replace(">","&gt;").Replace('"',"&quot;")
+    }
+
+    # Tabellenzeilen bauen
+    $rowsHtml = [System.Text.StringBuilder]::new()
+    foreach ($item in $exportRows) {
+        $badgeStyle = "background:$($item.FarbHintergrund);"
+        $pctWidth   = [math]::Min([double]$item.Anteil, 100)
+        [void]$rowsHtml.Append(@"
+      <tr>
+        <td class="num">$(Esc([string]$item.Rang))</td>
+        <td class="path">$(Esc($item.Pfad))</td>
+        <td class="num size">$(Esc($item.GraesseFmt))</td>
+        <td class="num">$(Esc([string]$item.Dateien))</td>
+        <td class="share">
+          <div class="bar-track"><div class="bar-fill" style="width:$pctWidth%"></div></div>
+          <span class="share-pct">$(Esc($item.AnteilFmt))</span>
+        </td>
+        <td><span class="badge" style="$badgeStyle">$(Esc($item.FarbLabel))</span></td>
+      </tr>
+"@)
+    }
+
+    $cancelledNote = if ($meta.Cancelled) { "<span class='warn'>$($L.ExportCancelled)</span>" } else { "" }
+    $noAccessNote  = if ($meta.NoAccess -gt 0) { "<span class='warn'>$($L.ExportNoAccess -f $meta.NoAccess)</span>" } else { "" }
+
+    # Start-Theme aus dem aktuell laufenden Tool uebernehmen
+    $htmlTheme = $script:ThemeMode.ToLower()
+
+    $html = @"
+<!DOCTYPE html>
+<html lang="$($script:Lang.ToLower())" data-theme="$htmlTheme">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sideforge · DiskLens — $($L.ExportReportTitle)</title>
+<style>
+  :root {
+    --bg: #FAFAF7; --surface: #FFFFFF; --surface-alt: #F1EFE8;
+    --text: #0F0F0F; --text-muted: #5F5E5A; --border: #E5E5E0;
+    --accent: #E8600A; --accent-text: #8C3800; --track: #E5E5E0;
+  }
+  [data-theme="dark"] {
+    --bg: #0F0F0F; --surface: #1A1A1A; --surface-alt: #141414;
+    --text: #F5F5F5; --text-muted: #B4B2A9; --border: #2C2C2A;
+    --accent: #F07E2D; --accent-text: #FDD9BC; --track: #2C2C2A;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 0; background: var(--bg); color: var(--text);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; font-size: 14px;
+    transition: background .2s, color .2s;
+  }
+  header {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 20px 28px; display: flex; align-items: center; gap: 14px;
+    position: sticky; top: 0; z-index: 10;
+  }
+  .logo {
+    width: 40px; height: 40px; border-radius: 7px; background: #1A1A1A;
+    display: grid; place-items: center; position: relative; flex-shrink: 0;
+  }
+  .logo span { font-family: Georgia, serif; font-style: italic; font-weight: bold; font-size: 22px; position: absolute; }
+  .logo .s { color: #E8600A; left: 7px; }
+  .logo .f { color: #F5F5F5; right: 7px; }
+  .brand { display: flex; flex-direction: column; }
+  .wordmark { font-weight: bold; font-size: 18px; }
+  .wordmark .forge { color: var(--accent); }
+  .subtool { font-size: 12px; color: var(--text-muted); }
+  .spacer { flex: 1; }
+  .theme-toggle {
+    background: var(--accent); border: none; color: #fff;
+    border-radius: 6px; padding: 8px 16px; cursor: pointer; font-size: 13px; font-weight: 600;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .theme-toggle:hover { opacity: .88; }
+  .meta {
+    padding: 20px 28px; display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 14px; max-width: 1400px;
+  }
+  .meta-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; }
+  .meta-label { font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: var(--text-muted); margin-bottom: 4px; }
+  .meta-value { font-size: 18px; font-weight: bold; }
+  .meta-value.accent { color: var(--accent); }
+  .warn { color: #BA7517; font-weight: 600; font-size: 12px; display: block; margin-top: 6px; }
+  main { padding: 0 28px 40px; max-width: 1400px; }
+  table { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  thead th {
+    background: var(--surface-alt); color: var(--accent-text); text-align: left;
+    padding: 12px 14px; font-size: 12px; text-transform: uppercase; letter-spacing: .5px; border-bottom: 1px solid var(--border);
+  }
+  tbody td { padding: 10px 14px; border-bottom: 1px solid var(--border); }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: var(--surface-alt); }
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .path { font-family: 'Consolas', monospace; font-size: 13px; }
+  .size { font-weight: 600; }
+  .share { min-width: 180px; }
+  .bar-track { display: inline-block; width: 100px; height: 8px; background: var(--track); border-radius: 4px; overflow: hidden; vertical-align: middle; }
+  .bar-fill { height: 100%; background: var(--accent); border-radius: 4px; }
+  .share-pct { margin-left: 8px; font-size: 12px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 4px; color: #fff; font-size: 11px; font-weight: 600; min-width: 64px; text-align: center; }
+  footer { padding: 20px 28px; color: var(--text-muted); font-size: 12px; border-top: 1px solid var(--border); }
+  footer a { color: var(--accent); text-decoration: none; }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo"><span class="s">S</span><span class="f">F</span></div>
+  <div class="brand">
+    <div class="wordmark">Side<span class="forge">forge</span> <span class="subtool">/ DiskLens</span></div>
+    <div class="subtool">$($L.ExportReportTitle)</div>
+  </div>
+  <div class="spacer"></div>
+  <button class="theme-toggle" onclick="toggleTheme()"><span id="theme-icon"></span> $($L.ExportToggleTheme)</button>
+</header>
+
+<section class="meta">
+  <div class="meta-card"><div class="meta-label">$($L.ExportMetaPath)</div><div class="meta-value" style="font-size:14px;word-break:break-all;">$(Esc($meta.Path))</div></div>
+  <div class="meta-card"><div class="meta-label">$($L.ExportMetaSize)</div><div class="meta-value accent">$(Esc($meta.TotalSize))</div></div>
+  <div class="meta-card"><div class="meta-label">$($L.ExportMetaFolders)</div><div class="meta-value">$("{0:N0}" -f $meta.TotalFolders)</div></div>
+  <div class="meta-card"><div class="meta-label">$($L.ExportMetaFiles)</div><div class="meta-value">$("{0:N0}" -f $meta.TotalFiles)</div></div>
+  <div class="meta-card"><div class="meta-label">$($L.ExportMetaGenerated)</div><div class="meta-value" style="font-size:14px;">$genTime</div>$cancelledNote$noAccessNote</div>
+</section>
+
+<main>
+  <table>
+    <thead>
+      <tr>
+        <th>#</th><th>$($L.ColPath)</th><th class="num">$($L.ColSize)</th>
+        <th class="num">$($L.ColFiles)</th><th>$($L.ColShare)</th><th>$($L.ColSizeClass)</th>
+      </tr>
+    </thead>
+    <tbody>
+$($rowsHtml.ToString())
+    </tbody>
+  </table>
+</main>
+
+<footer>
+  $($L.ExportFooter) · <a href="https://github.com/C129H223N3O54/SideForge">Sideforge Design System</a>
+</footer>
+
+<script>
+  function updateIcon() {
+    var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    document.getElementById('theme-icon').textContent = isDark ? '\u2600' : '\u263D';
+  }
+  function toggleTheme() {
+    const html = document.documentElement;
+    html.setAttribute('data-theme', html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+    updateIcon();
+  }
+  // Theme kommt vom Tool (data-theme im html-Tag) - nur Icon initialisieren
+  updateIcon();
+</script>
+</body>
+</html>
+"@
+
+    [System.IO.File]::WriteAllText($Path, $html, [System.Text.Encoding]::UTF8)
+    # Im Standardbrowser öffnen
+    Start-Process $Path
+    $lblStatus.Text = $L.ExportDone -f $Path
+}
+
+$btnExport.Add_Click({ Export-ScanResults })
+
 # Ordner-Browser
 $btnBrowse.Add_Click({
     $dialog = [System.Windows.Forms.FolderBrowserDialog]::new()
@@ -2498,11 +2658,15 @@ $btnScan.Add_Click({
 
     $script:CancelRequested  = $false
     $script:ScanResults      = $null
+    $script:ExportData       = $null
+    $script:ExportMeta       = $null
+    $btnExport.Tag           = $null
     $script:BrowserSizeCache.Clear()
 
     $btnScan.IsEnabled        = $false
     $btnCancel.IsEnabled      = $true
     $btnOpenExplorer.IsEnabled= $false
+    $btnExport.IsEnabled      = $false
     $progressBar.Value        = 0
     $lblProgress.Text         = ""
     $dgResults.ItemsSource    = $null
@@ -2526,6 +2690,7 @@ $btnScan.Add_Click({
     $runspace.SessionStateProxy.SetVariable("lblProgress",   $lblProgress)
     $runspace.SessionStateProxy.SetVariable("btnScan",       $btnScan)
     $runspace.SessionStateProxy.SetVariable("btnCancel",     $btnCancel)
+    $runspace.SessionStateProxy.SetVariable("btnExport",     $btnExport)
     $runspace.SessionStateProxy.SetVariable("CancelRef",     ([ref]$script:CancelRequested))
     $runspace.SessionStateProxy.SetVariable("ScanResultsRef",([ref]$script:ScanResults))
     $runspace.SessionStateProxy.SetVariable("L",             $L)
@@ -2739,8 +2904,22 @@ $btnScan.Add_Click({
         $cancelled    = $CancelRef.Value
 
         $noAccessCount = ($rawData | Where-Object { $_.KeinZugriff } | Measure-Object).Count
+        $currentPath = $startPath
         $dispatcher.Invoke([Action]{
             $dgResults.ItemsSource   = $displayData
+            # Export-Daten am Button-Tag ablegen (UI-Thread-sicher)
+            $btnExport.Tag = [PSCustomObject]@{
+                Data = $displayData
+                Meta = @{
+                    Path         = $currentPath
+                    TotalSize    = $totalSize
+                    TotalFiles   = $totalFiles
+                    TotalFolders = $totalFolders
+                    NoAccess     = $noAccessCount
+                    Cancelled    = $cancelled
+                    Timestamp    = (Get-Date)
+                }
+            }
             $noAccessHint = if ($noAccessCount -gt 0) { $L.StatusNoAccess -f $noAccessCount } else { "" }
             $lblStatus.Text          = if ($cancelled) {
                 ($L.StatusCancelled -f $totalFolders) + $noAccessHint
@@ -2752,6 +2931,7 @@ $btnScan.Add_Click({
             $lblProgress.Text        = if ($cancelled) { $L.ProgressCancelled } else { "100 %" }
             $btnScan.IsEnabled       = $true
             $btnCancel.IsEnabled     = $false
+            $btnExport.IsEnabled     = ($displayData -and $displayData.Count -gt 0)
         })
 
         $ScanResultsRef.Value = $rawData
