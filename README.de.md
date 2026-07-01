@@ -3,7 +3,7 @@
 > **Ein schnelles, portables WPF-Tool für Windows zum Analysieren, Visualisieren und Aufräumen von Festplattenplatz.**  
 > Einzelne PowerShell-Datei — keine Installation, keine Abhängigkeiten.
 
-![Version](https://img.shields.io/badge/version-1.3.0-E8600A?style=flat-square)
+![Version](https://img.shields.io/badge/version-1.3.1-E8600A?style=flat-square)
 ![Platform](https://img.shields.io/badge/platform-Windows-0078D4?style=flat-square)
 ![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-012456?style=flat-square)
 ![License](https://img.shields.io/badge/license-MIT-639922?style=flat-square)
@@ -29,6 +29,7 @@ Teil der **[Sideforge](https://github.com/C129H223N3O54/SideForge)** Tool-Suite.
 - **Größenklassen-Badges** — Sehr groß / Groß / Mittel / Klein / Sehr klein
 - **Anteilsbalken** zeigt visuell, welcher Ordner wie viel Platz belegt
 - **Abbruch** jederzeit möglich — Teilergebnisse bleiben sichtbar
+- **Export** der Ergebnisse als HTML-Bericht oder CSV
 
 ### Datei-Browser
 - Seitenbereich-Browser mit Doppelklick-Navigation
@@ -62,7 +63,6 @@ Teil der **[Sideforge](https://github.com/C129H223N3O54/SideForge)** Tool-Suite.
 - **Pfad-History** — letzten 10 Pfade, persistent gespeichert
 - **Fensterposition und -größe** werden gespeichert und wiederhergestellt
 - **Admin-Check** beim Start mit Option zum Neustart als Administrator
-- **Laufwerks-Auswahldialog** beim Start
 
 ---
 
@@ -93,9 +93,26 @@ Oder per Rechtsklick → **„Mit PowerShell ausführen"**.
 ## Startablauf
 
 1. **Admin-Check** — als Administrator starten oder mit normalen Rechten weitermachen
-2. **Laufwerksauswahl** — zu analysierendes Laufwerk wählen
+
+Die Analyse startet am Systemlaufwerk (`C:\`). Mit dem **Durchsuchen**-Button lässt sich jeder andere Ordner wählen.
 
 Sprache und Theme werden live per Button oben rechts umgeschaltet. Einstellungen werden automatisch in `%APPDATA%\DiskLens\config.xml` gespeichert.
+
+---
+
+## Export
+
+Nach einem Scan lassen sich die Ergebnisse exportieren:
+
+- **HTML-Bericht** — eine eigenständige, in sich geschlossene Datei im Sideforge-Design. Sie öffnet im selben Theme (Light / Dark), in dem das Tool gerade läuft, mit Umschalt-Button. Enthält Kopfzusammenfassung, Meta-Karten und die vollständige Tabelle mit Anteilsbalken und Größenklassen-Badges.
+- **CSV** — skriptfreundliche Rohdaten, Semikolon-getrennt, UTF-8. Spalten: `Rang`, `Pfad`, `GroesseBytes` (rohe Byte-Zahl zum Weiterverarbeiten), `GroesseFmt`, `Dateien`, `AnteilProzent`, `Groessenklasse`, `KeinZugriff`.
+
+```powershell
+# Beispiel: CSV danach weiterverarbeiten
+Import-Csv report.csv -Delimiter ';' |
+  Where-Object { [long]$_.GroesseBytes -gt 1GB } |
+  Sort-Object { [long]$_.GroesseBytes } -Descending
+```
 
 ---
 
@@ -141,6 +158,12 @@ Konfiguration liegt unter `%APPDATA%\DiskLens\config.xml` (Fensterposition, Pfad
 ---
 
 ## Changelog
+
+### v1.3.1 — 25.04.2026
+- Laufwerksauswahl-Dialog beim Start entfernt — Analyse startet am Systemlaufwerk, Wechsel per **Durchsuchen**
+- **HTML-Export** der Scan-Ergebnisse — übernimmt das aktuelle Tool-Theme, mit Light / Dark-Umschaltung
+- **CSV-Export** mit skriptfreundlichen Rohdaten (inkl. Größe in Bytes)
+- Export-Button in der Toolbar (aktiv nach abgeschlossenem Scan)
 
 ### v1.3.0 — 24.04.2026
 - **Sideforge Design-System** eingeführt (Ember / Moss / Anvil Palette)

@@ -3,7 +3,7 @@
 > **A fast, portable WPF tool for Windows to analyze, visualize, and clean up disk space.**  
 > Single-file PowerShell — no installation, no dependencies.
 
-![Version](https://img.shields.io/badge/version-1.3.0-E8600A?style=flat-square)
+![Version](https://img.shields.io/badge/version-1.3.1-E8600A?style=flat-square)
 ![Platform](https://img.shields.io/badge/platform-Windows-0078D4?style=flat-square)
 ![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-012456?style=flat-square)
 ![License](https://img.shields.io/badge/license-MIT-639922?style=flat-square)
@@ -29,6 +29,7 @@ Part of the **[Sideforge](https://github.com/C129H223N3O54/SideForge)** tool sui
 - **Size class badges** — Very Large / Large / Medium / Small / Very Small
 - **Share bar** showing each folder's proportion visually
 - **Cancel** at any time — partial results stay visible
+- **Export** results as an HTML report or CSV
 
 ### File Browser
 - Side-panel browser with double-click navigation
@@ -62,7 +63,6 @@ Part of the **[Sideforge](https://github.com/C129H223N3O54/SideForge)** tool sui
 - **Path history** — last 10 paths, stored persistently
 - **Window position and size** saved and restored
 - **Admin check** at startup with option to restart as Administrator
-- **Drive selection** dialog at startup
 
 ---
 
@@ -93,9 +93,26 @@ Or right-click → **"Run with PowerShell"**.
 ## Startup Flow
 
 1. **Admin check** — run as Administrator or continue with standard rights
-2. **Drive selection** — choose which drive to analyze
+
+The scan starts at your system drive (`C:\`). Use the **Browse** button to pick any other folder.
 
 Language and theme are switched live via buttons in the top-right corner. Preferences are saved automatically in `%APPDATA%\DiskLens\config.xml`.
+
+---
+
+## Export
+
+After a scan you can export the results:
+
+- **HTML report** — a standalone, self-contained file in the Sideforge design. It opens in the same theme (Light / Dark) the tool is currently running in, with a toggle button to switch. Includes a summary header, meta cards, and the full table with share bars and size-class badges.
+- **CSV** — script-friendly raw data with semicolon delimiter and UTF-8 encoding. Columns: `Rang`, `Pfad`, `GroesseBytes` (raw byte count for further processing), `GroesseFmt`, `Dateien`, `AnteilProzent`, `Groessenklasse`, `KeinZugriff`.
+
+```powershell
+# Example: work with the CSV afterwards
+Import-Csv report.csv -Delimiter ';' |
+  Where-Object { [long]$_.GroesseBytes -gt 1GB } |
+  Sort-Object { [long]$_.GroesseBytes } -Descending
+```
 
 ---
 
@@ -141,6 +158,12 @@ Configuration is stored at `%APPDATA%\DiskLens\config.xml` (window position, pat
 ---
 
 ## Changelog
+
+### v1.3.1 — 2026-04-25
+- Removed the drive-selection dialog at startup — scan starts at the system drive, change via **Browse**
+- **HTML export** of scan results — adopts the tool's current theme, with a Light / Dark toggle
+- **CSV export** with script-friendly raw data (including size in bytes)
+- Export button in the toolbar (enabled after a completed scan)
 
 ### v1.3.0 — 2026-04-24
 - **Sideforge design system** introduced (Ember / Moss / Anvil palette)

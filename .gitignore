@@ -11,6 +11,10 @@ $RECYCLE.BIN/
 # Config (wird zur Laufzeit angelegt, nicht einchecken)
 config.xml
 
+# Exportierte Reports
+DiskLens-Report_*.html
+DiskLens-Report_*.csv
+
 # Editor
 .vscode/
 *.suo
